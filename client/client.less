@@ -1,0 +1,36 @@
+@import "/packages/bootstrap3-less/bootstrap.import.less";
+@import url('http://fonts.googleapis.com/css?family=Titillium+Web:400,200,700&subset=latin,latin-ext');
+
+@font-family-sans-serif: "Titillium Web", "Coda", "Helvetica Neue", Arial, sans-serif;
+@headings-font-family: "Titillium Web", "Coda", sans-serif;
+
+img.avatar {
+    .img-rounded();
+    height: 32px;
+    margin-top: 4px;
+}
+
+.navbar {
+    border-radius: none;
+}
+
+.centering.cover {
+    display: table;
+    vertical-align: middle;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    :before {
+        content: ' ';
+        display: inline-block;
+        height: 100%;
+        vertical-align: middle;
+        margin-right: -0.25em;
+    }
+    .centered {
+        display: table-cell;
+        text-align: center;
+        vertical-align: middle;
+        width: 700px;
+    }
+}
