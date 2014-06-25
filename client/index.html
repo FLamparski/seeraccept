@@ -68,13 +68,7 @@
             <div class="collapse navbar-collapse" id="sa-navbar-collapse">
                 {{#if currentUser}}
                 <ul class="nav navbar-nav">
-                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Refresh mail <b class="caret"></b></a>
-                    <ul class="dropdown-menu">
-                        {{#each currentUser.account_emails}}
-                            <li><a href="#check">{{this}}</a></li>
-                        {{/each}}
-                    </ul>
-                    </li>
+                    <li><a href="#" id="checkMail">Refresh mail</a></li>
                 </ul>
                 {{/if}}
                 <ul class="nav navbar-nav navbar-right">

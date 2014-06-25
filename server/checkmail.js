@@ -1,5 +1,7 @@
 var Imap = Meteor.require('imap'),
-    myImap,
+    inspect = Meteor.require('util').inspect,
+    xoauth2 = Meteor.require('xoauth2'),
+    MailParser = Meteor.require('mailparser').MailParser,
     imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet'};
 
 // Since we are checking several searches pretty much simultaneously, we need to
@@ -7,84 +9,95 @@ var Imap = Meteor.require('imap'),
 // it's not the most complex flag ever, but it's getting there.
 function yield_imap (symbol) {
     imapState[symbol] = 'yield';
-    if(imapState.s === 'yield' && imapState.l === 'yield' && imapState.r === 'yield'){
-        myImap.end();
-    }
+    return (imapState.s === 'yield' && imapState.l === 'yield' && imapState.r === 'yield');
 }
 
-function makexoauth2 (userId){
-    var user = Meteor.users.findOne({'_id:': userId}),
-        email = user.services.google.email,
-        accessToken = user.services.accessToken;
-    return new Buffer("user=" + email + "\001auth=Bearer " + accessToken + "\001\001").toString('base64');
+function handle_submission_message (msg, seq_n){
+    msg.on('body', function(stream, info){
+        console.log(info.which + " => " + info.size);
+    });
+    msg.once('attributes', function(attrs){
+        console.log(inspect(attrs, false, 0));
+    });
 }
 
-function readycb (){
-    console.log("GMail ready. Proceeding to search for NIA mail.");
-    myImap.openBox('INBOX', true, function(err, box){
+function handle_check_mail(user, token){
+    myImap = new Imap({
+        user: user.services.google.email,
+        xoauth2: token,
+        host: 'imap.gmail.com',
+        port: 993,
+        tls: true
+    });
+    myImap.once('ready', function() {
+        console.log("GMail ready. Proceeding to search for NIA mail.");
+        myImap.openBox('INBOX', true, function(err, box){
         if (err) throw err;
-        var psubs = imap.search(['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"'],
+        var psubs = myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
             function(err, results){
                 if (err) throw err;
-                var f = imap.fetch(results, { bodies: '' });
+                var f = myImap.fetch(results, { bodies: '' });
                 f.on('message', handle_submission_message);
                 f.once('error', function(err){
                     console.error('Fetch error: ' + err);
-                    yield_imap('s');
+                    if(yield_imap('s')) myImap.end();
                 });
                 f.once('end', function(){
                     console.log('Done fetching submissions.');
-                    yield_imap('s');
+                    if(yield_imap('s')) myImap.end();
                 });
-            });
-        var plive = imap.search(['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"'],
+            }); // psubs handler
+        var plive = myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
             function(err, results){
                 if (err) throw err;
-                var f = imap.fetch(results, { bodies: '' });
-                f.on('message', handle_live_message);
+                var f = myImap.fetch(results, { bodies: '' });
+                f.on('message', handle_submission_message);
                 f.once('error', function(err){
                     console.error('Fetch error: ' + err);
-                    yield_imap('l');
+                    if(yield_imap('l')) myImap.end();
                 });
                 f.once('end', function(){
                     console.log('Done fetching live portals.');
-                    yield_imap('l');
+                    if(yield_imap('l')) myImap.end();
                 });
-            });
-        var prejected = imap.search(['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"'],
+            }); // plive handler
+        var prejected = myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
             function(err, results){
                 if (err) throw err;
-                var f = imap.fetch(results, { bodies: '' });
-                f.on('message', handle_rejected_message);
+                var f = myImap.fetch(results, { bodies: '' });
+                f.on('message', handle_submission_message);
                 f.once('error', function(err){
                     console.error('Fetch error: ' + err);
-                    yield_imap('r');
+                    if(yield_imap('r')) myImap.end();
                 });
                 f.once('end', function(){
                     console.log('Done fetching rejections.');
-                    yield_imap('r');
+                    if(yield_imap('r')) myImap.end();
                 });
-            });
-    });
+            }); // prejected handler
+        }); // open box handler
+    }); // once ready handler
+    myImap.once('error', function(error){
+        console.error(inspect(error));
+    }); // once error handler
+    myImap.once('end', function(){ console.log("Disconnected from Gmail."); });
+    myImap.connect();
 }
 
 Meteor.methods({
     check_mail: function(){
-        if(this.userId){
             this.unblock(); // this is mostly a call-backy thingy
-            myImap = new Imap({
-                user: Meteor.users.findOne({'_id': this.userId}).services.google.email,
-                xoauth2: makexoauth2(userId),
-                host: 'imap.google.com',
-                port: 993,
-                tls: true
-            });
-            myImap.once('ready', readycb);
-            myImap.once('error', errorcb);
-            myImap.once('end', endcb);
-            myImap.connect();
-        } else {
-            throw "No user ID provided!";
-        }
-    }
+            var user = Meteor.user(),
+                keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
+                xoauth2obj = xoauth2.createXOAuth2Generator({
+                    user: user.services.google.email,
+                    clientId: keys.clientId,
+                    clientSecret: keys.secret,
+                    refreshToken: user.services.google.refreshToken
+                });
+            xoauth2obj.getToken(function(err, token){
+                if(err) throw err;
+                handle_check_mail(user, token);
+            }); // getToken
+        } // check_mail
 });
