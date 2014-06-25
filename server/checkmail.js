@@ -12,12 +12,37 @@ function yield_imap (symbol) {
     return (imapState.s === 'yield' && imapState.l === 'yield' && imapState.r === 'yield');
 }
 
-function handle_submission_message (msg, seq_n){
-    msg.on('body', function(stream, info){
-        console.log(info.which + " => " + info.size);
+function handle_one_message(type, mail, seqno){
+    if(mail.subject){
+        console.log('[' + type + '#'+seqno+'] Subj: ' + mail.subject + '; date: ' + mail.date);
+    } else {
+        console.warn('[' + type + '#'+seqno+'] encountered a malformed message');
+    }
+}
+
+function handle_search_results(type, results, imap){
+    var f = imap.fetch(results, { bodies: '' });
+    f.on('message', function(message, seqno){
+        parser = new MailParser();
+        parser.on('end', function(mail){
+            handle_one_message(type, mail, seqno);
+        });
+        message.on('body', function(stream, info){
+            stream.on('data', function(chunk){
+                parser.write(chunk, 'utf-8');
+            });
+        });
+        message.on('end', function (){
+            parser.end();
+        });
     });
-    msg.once('attributes', function(attrs){
-        console.log(inspect(attrs, false, 0));
+    f.once('error', function(err){
+        console.error('Fetch error: ' + err);
+        if(yield_imap(type[0])) imap.end();
+    });
+    f.once('end', function(){
+        console.log('Done fetching messages for ' + type + '.');
+        if(yield_imap(type[0])) imap.end();
     });
 }
 
@@ -33,47 +58,20 @@ function handle_check_mail(user, token){
         console.log("GMail ready. Proceeding to search for NIA mail.");
         myImap.openBox('INBOX', true, function(err, box){
         if (err) throw err;
-        var psubs = myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
+        myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
             function(err, results){
                 if (err) throw err;
-                var f = myImap.fetch(results, { bodies: '' });
-                f.on('message', handle_submission_message);
-                f.once('error', function(err){
-                    console.error('Fetch error: ' + err);
-                    if(yield_imap('s')) myImap.end();
-                });
-                f.once('end', function(){
-                    console.log('Done fetching submissions.');
-                    if(yield_imap('s')) myImap.end();
-                });
+                handle_search_results('submitted', results, myImap);
             }); // psubs handler
-        var plive = myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
+        myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
             function(err, results){
                 if (err) throw err;
-                var f = myImap.fetch(results, { bodies: '' });
-                f.on('message', handle_submission_message);
-                f.once('error', function(err){
-                    console.error('Fetch error: ' + err);
-                    if(yield_imap('l')) myImap.end();
-                });
-                f.once('end', function(){
-                    console.log('Done fetching live portals.');
-                    if(yield_imap('l')) myImap.end();
-                });
+                handle_search_results('live', results, myImap);
             }); // plive handler
-        var prejected = myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
+        myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
             function(err, results){
                 if (err) throw err;
-                var f = myImap.fetch(results, { bodies: '' });
-                f.on('message', handle_submission_message);
-                f.once('error', function(err){
-                    console.error('Fetch error: ' + err);
-                    if(yield_imap('r')) myImap.end();
-                });
-                f.once('end', function(){
-                    console.log('Done fetching rejections.');
-                    if(yield_imap('r')) myImap.end();
-                });
+                handle_search_results('rejected', results, myImap);
             }); // prejected handler
         }); // open box handler
     }); // once ready handler
