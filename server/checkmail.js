@@ -2,6 +2,7 @@ var Imap = Meteor.require('imap'),
     inspect = Meteor.require('util').inspect,
     xoauth2 = Meteor.require('xoauth2'),
     MailParser = Meteor.require('mailparser').MailParser,
+    fs = Meteor.require('fs'),
     imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet'};
 
 // Since we are checking several searches pretty much simultaneously, we need to
@@ -12,26 +13,32 @@ function yield_imap (symbol) {
     return (imapState.s === 'yield' && imapState.l === 'yield' && imapState.r === 'yield');
 }
 
+function alert_user (uid, atype, atext){
+    Alerts.remove({'uid': uid});
+    Alerts.insert({'uid': uid, 'atype': atype, 'atext': atext});
+}
+
 function handle_one_message(type, mail, seqno){
-    if(mail.subject){
-        console.log('[' + type + '#'+seqno+'] subj: ' + mail.subject + '; date: ' + mail.date);
-    } else {
-        console.warn('[' + type + '#'+seqno+'] encountered a malformed message');
-    }
+    fs.createWriteStream('/home/filip/seeraccept_test/' + type + '-' + seqno + '.txt').write(mail.html);
 }
 
 function handle_search_results(type, results, imap){
     var f = imap.fetch(results, { bodies: '' });
     f.on('message', function(message, seqno){
-        parser = new MailParser();
+        var parser = new MailParser();
         parser.on('end', function(mail){
             handle_one_message(type, mail, seqno);
         });
         message.on('body', function(stream, info){
-            stream.pipe(parser);
+            stream.on('data', function(chunk){
+                parser.write(chunk);
+            });
+            stream.on('end', function(){
+                parser.end();
+            });
         });
         message.on('end', function (){
-            parser.end();
+            console.log('Processed seq# ' + seqno);
         });
     });
     f.once('error', function(err){
@@ -44,13 +51,14 @@ function handle_search_results(type, results, imap){
     });
 }
 
-function handle_check_mail(user, token){
+function handle_check_mail(user, token, callback){
     myImap = new Imap({
         user: user.services.google.email,
         xoauth2: token,
         host: 'imap.gmail.com',
         port: 993,
-        tls: true
+        tls: true,
+        //debug: console.log
     });
     myImap.once('ready', function() {
         console.log("GMail ready. Proceeding to search for NIA mail.");
@@ -75,13 +83,18 @@ function handle_check_mail(user, token){
     }); // once ready handler
     myImap.once('error', function(error){
         console.error(inspect(error));
+        callback(error);
     }); // once error handler
-    myImap.once('end', function(){ console.log("Disconnected from Gmail."); });
+    myImap.once('end', function(){
+        console.log("Disconnected from Gmail.");
+        callback();
+    });
     myImap.connect();
 }
 
 Meteor.methods({
     check_mail: function(){
+            Alerts.insert({atype: 'info', atext: 'IMAP pull initiated. Stand by.', uid: Meteor.userId()});
             this.unblock(); // this is mostly a call-backy thingy
             var user = Meteor.user(),
                 keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
@@ -92,8 +105,19 @@ Meteor.methods({
                     refreshToken: user.services.google.refreshToken
                 });
             xoauth2obj.getToken(function(err, token){
-                if(err) throw err;
-                handle_check_mail(user, token);
+                if(err) {
+                    alert_user(Meteor.userId(), 'warning',
+                        'Error generating authentication data for Gmail.');
+                    console.error(err);
+                }
+                handle_check_mail(user, token, function(err){
+                    if(err){
+                        alert_user(user._id, 'warning', "Error checking Gmail");
+                    } else {
+                        alert_user(user._id, 'success', "Email fetched.");
+                    }
+                });
             }); // getToken
         } // check_mail
 });
+

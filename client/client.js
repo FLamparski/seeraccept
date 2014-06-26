@@ -2,8 +2,10 @@ console.log("Entering client.js");
 
 var Portals = new Meteor.Collection('portals');
 Portals.attachSchema(Schemas.Portal);
+var Alerts = new Meteor.Collection('alerts');
 
 Meteor.subscribe('my-portals');
+Meteor.subscribe('alerts');
 
 Template.user_loggedOut.events({
     "click .sa-btn-login": function (e, tmpl) {
@@ -43,3 +45,4 @@ Template.header.events({
         }
     }
 });
+

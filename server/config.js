@@ -11,3 +11,4 @@ Accounts.loginServiceConfiguration.insert({
 });
 
 });
+

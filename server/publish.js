@@ -1,11 +1,16 @@
 console.log("Entering server/publish.js");
 
-var Portals = new Meteor.Collection('portals');
+Portals = new Meteor.Collection('portals');
 Portals.attachSchema(Schemas.Portal);
+Alerts = new Meteor.Collection('alerts');
 
 
 Meteor.publish('my-portals', function() {
     return Portals.find({submitter: this.userId});
+});
+
+Meteor.publish('alerts', function() {
+    return Alerts.find({uid: this.userId});
 });
 
 Portals.allow({

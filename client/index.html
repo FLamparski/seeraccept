@@ -17,6 +17,7 @@
     {{> header}}
 
     <div class="container">
+        {{>alerts}}
         {{#if currentUser}}
           {{#if loggingIn}}
             {{>spincover}}
@@ -117,4 +118,13 @@
         <p>Portal photo goes here, plus any additional details</p>
     </div>
 </div>
+</template>
+
+<template name="alerts">
+{{#each alerts}}
+  <div class="alert alert-dismissable alert-{{atype}}">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong>{{atype}}</strong>: {{atext}}
+  </div>
+{{/each}}
 </template>
