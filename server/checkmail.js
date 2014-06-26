@@ -18,16 +18,13 @@ function alert_user (uid, atype, atext){
     Alerts.insert({'uid': uid, 'atype': atype, 'atext': atext});
 }
 
-function handle_one_message(type, mail, seqno){
-    fs.createWriteStream('/home/filip/seeraccept_test/' + type + '-' + seqno + '.txt').write(mail.html);
-}
-
-function handle_search_results(type, results, imap){
+function handle_search_results(type, results, imap, callback){
     var f = imap.fetch(results, { bodies: '' });
+    var result = [];
     f.on('message', function(message, seqno){
         var parser = new MailParser();
         parser.on('end', function(mail){
-            handle_one_message(type, mail, seqno);
+            result.push(mail);
         });
         message.on('body', function(stream, info){
             stream.on('data', function(chunk){
@@ -38,20 +35,22 @@ function handle_search_results(type, results, imap){
             });
         });
         message.on('end', function (){
-            console.log('Processed seq# ' + seqno);
+            //console.log('Processed seq# ' + seqno);
         });
     });
     f.once('error', function(err){
-        console.error('Fetch error: ' + err);
         if(yield_imap(type[0])) imap.end();
+        callback(err, null);
     });
     f.once('end', function(){
         console.log('Done fetching messages for ' + type + '.');
         if(yield_imap(type[0])) imap.end();
+        callback(null, result);
     });
 }
 
 function handle_check_mail(user, token, callback){
+    var mail = {};
     myImap = new Imap({
         user: user.services.google.email,
         xoauth2: token,
@@ -67,34 +66,45 @@ function handle_check_mail(user, token, callback){
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
             function(err, results){
                 if (err) throw err;
-                handle_search_results('submitted', results, myImap);
+                handle_search_results('submitted', results, myImap, function(err, result){
+                    if (err) throw err;
+                    mail.submitted = result;
+                });
             }); // psubs handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
             function(err, results){
                 if (err) throw err;
-                handle_search_results('live', results, myImap);
+                handle_search_results('live', results, myImap, function(err, result){
+                    if (err) throw err;
+                    mail.live = result;
+                });
             }); // plive handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
             function(err, results){
                 if (err) throw err;
-                handle_search_results('rejected', results, myImap);
+                handle_search_results('rejected', results, myImap, function(err, result){
+                    if (err) throw err;
+                    mail.rejected = result;
+                });
             }); // prejected handler
         }); // open box handler
     }); // once ready handler
     myImap.once('error', function(error){
         console.error(inspect(error));
-        callback(error);
+        callback(error, null);
     }); // once error handler
     myImap.once('end', function(){
         console.log("Disconnected from Gmail.");
-        callback();
+        callback(null, mail);
     });
     myImap.connect();
 }
 
 Meteor.methods({
     check_mail: function(){
-            Alerts.insert({atype: 'info', atext: 'IMAP pull initiated. Stand by.', uid: Meteor.userId()});
+            alert_user(Meteor.userId(), 'info', 'Starting Gmail pull, hang on...');
+            var Future = Meteor.require('fibers/future');
+            var future = new Future();
             this.unblock(); // this is mostly a call-backy thingy
             var user = Meteor.user(),
                 keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
@@ -106,18 +116,22 @@ Meteor.methods({
                 });
             xoauth2obj.getToken(function(err, token){
                 if(err) {
-                    alert_user(Meteor.userId(), 'warning',
-                        'Error generating authentication data for Gmail.');
-                    console.error(err);
+                    future.throw(err);
                 }
-                handle_check_mail(user, token, function(err){
+                handle_check_mail(user, token, function(err, mail){
                     if(err){
-                        alert_user(user._id, 'warning', "Error checking Gmail");
+                        future.throw(err);
                     } else {
-                        alert_user(user._id, 'success', "Email fetched.");
+                        future.return(mail);
                     }
                 });
             }); // getToken
+            var mail = future.wait();
+            var total = mail.submitted.length + mail.live.length + mail.rejected.length;
+            alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
+                    + mail.submitted.length + ' submissions, '
+                    + mail.live.length + ' live, '
+                    + mail.rejected.length + ' rejected.');
         } // check_mail
 });
 

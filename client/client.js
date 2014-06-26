@@ -46,3 +46,6 @@ Template.header.events({
     }
 });
 
+Template.alerts.alerts = function (){
+    return Alerts.find({});
+};
