@@ -14,7 +14,7 @@ function yield_imap (symbol) {
 
 function handle_one_message(type, mail, seqno){
     if(mail.subject){
-        console.log('[' + type + '#'+seqno+'] Subj: ' + mail.subject + '; date: ' + mail.date);
+        console.log('[' + type + '#'+seqno+'] subj: ' + mail.subject + '; date: ' + mail.date);
     } else {
         console.warn('[' + type + '#'+seqno+'] encountered a malformed message');
     }
@@ -28,9 +28,7 @@ function handle_search_results(type, results, imap){
             handle_one_message(type, mail, seqno);
         });
         message.on('body', function(stream, info){
-            stream.on('data', function(chunk){
-                parser.write(chunk, 'utf-8');
-            });
+            stream.pipe(parser);
         });
         message.on('end', function (){
             parser.end();
