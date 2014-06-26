@@ -1,5 +1,6 @@
 {
   "imap": "0.8.10",
   "mailparser": "0.4.4",
-  "xoauth2": "0.1.8"
+  "xoauth2": "0.1.8",
+  "cheerio": "0.12.3"
 }

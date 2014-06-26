@@ -111,7 +111,7 @@
 <div class="row">
     <div class="col-xs-12 col-sm-4">
         <h2>Portal list</h2>
-        <p>Individual portals will go here</p>
+        {{>portalList}}
     </div>
     <div class="col-xs-12 col-sm-8">
         <h2>Portal details</h2>
@@ -127,4 +127,20 @@
       <strong>{{atype}}</strong>: {{atext}}
   </div>
 {{/each}}
+</template>
+
+<template name="portalList">
+<ul class="portal-list">
+    {{#each portals}}
+    <li class="media">
+        <a href="#{{_id}}" data-target="portal" class="pull-left">
+            <img class="media-object" width="64" src="{{image}}" />
+        </a>
+        <div class="media-body">
+            <h4 class="media-heading">{{name}}</h4>
+            <p>Status: {{pstatus _id}}</p>
+        </div>
+    </li>
+    {{/each}}
+</ul>
 </template>

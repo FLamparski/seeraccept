@@ -2,6 +2,7 @@
   "packages": {
     "npm": {},
     "bootstrap3-less": {},
-    "collection2": {}
+    "collection2": {},
+    "cheerio": {}
   }
 }

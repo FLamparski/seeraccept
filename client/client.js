@@ -49,3 +49,10 @@ Template.header.events({
 Template.alerts.alerts = function (){
     return Alerts.find({});
 };
+
+Template.portalList.portals = function (){
+    return Portals.find({});
+};
+Template.portalList.pstatus = function (_id){
+    return "FIXME: Status for portal #" + _id;
+};

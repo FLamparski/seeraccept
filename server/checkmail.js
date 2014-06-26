@@ -131,7 +131,8 @@ Meteor.methods({
             alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
                     + mail.submitted.length + ' submissions, '
                     + mail.live.length + ' live, '
-                    + mail.rejected.length + ' rejected.');
+                    + mail.rejected.length + ' rejected. Processing data.');
+            MailProcessor.process(Meteor.userId(), mail);
         } // check_mail
 });
 
