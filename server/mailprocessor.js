@@ -43,7 +43,7 @@ MailProcessor.process = function(userId, mail){
             {$and: [{'name': obj.title}, {'submitter': obj.submitter}]},
             {
             $set: {'intel': obj.intel},
-            $push: { 'history': { 'timestamp': obj.date, 'what': 'live' }}
+            $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'live' }}
             }
         );
     });
@@ -58,7 +58,7 @@ MailProcessor.process = function(userId, mail){
         Portals.update(
             {$and: [{'name': obj.title}, {'submitter': obj.submitter}]},
             {
-            $push: { 'history': { 'timestamp': obj.date, 'what': 'rejected' }}
+            $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'rejected' }}
             }
         );
     });
