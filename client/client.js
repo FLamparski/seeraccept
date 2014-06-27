@@ -50,12 +50,13 @@ Template.alerts.alerts = function (){
     return Alerts.find({});
 };
 
+function pHistoryPred(a, b){
+    return b.timestamp - a.timestamp;
+}
+
 window._pstatus = function(portal){
     return portal.history // Get the events for this portal
-        .sort(function(a, b){
-            // Status is the most recent event's what value
-            return b.timestamp - a.timestamp;
-    })[0].what;
+        .sort(pHistoryPred)[0].what;
 };
 
 window._portals_statusSortPredicate = function(a, b) {
@@ -66,7 +67,7 @@ window._portals_statusSortPredicate = function(a, b) {
 };
 
 window._portals_ascDateSortPredicate = function(a, b) {
-    var st = function(p) { return o.history.sort(function(a, b){ return b.timestamp - a.timestamp; })[0].timestamp; };
+    var st = function(p) { return o.history.sort(pHistoryPred)[0].timestamp; };
     return st(b) - st(b);
 };
 
@@ -82,7 +83,7 @@ Template.portalList.helpers({
                 else return _pstatus(portal);
             },
     is_active: function(portal){
-                return '';
+                return Session.get("selected_portal") === portal._id ? 'active' : '';
             },
     css_class: function(portal){
                 return {
@@ -91,6 +92,11 @@ Template.portalList.helpers({
                     'rejected': 'danger'
                 }[_pstatus(portal)];
             }
+});
+Template.portalList.events({
+    "click .portal-item": function() {
+        Session.set("selected_portal", this._id);
+    }
 });
 
 function _percentStatus(what){
@@ -110,5 +116,85 @@ Template.barchart.helpers({
     },
     percentLive: function(){
         return _percentStatus('live');
+    }
+});
+
+function get_current_portal(){
+    return Portals.findOne({_id: Session.get("selected_portal")});
+}
+
+Template.portalDetails.helpers({
+    selected_portal: function(){
+        return Session.get("selected_portal");
+    },
+    events: function(){
+        var p = get_current_portal();
+        return p ? p.history.sort(pHistoryPred) : null;
+    },
+    relativeDate: function(timestamp){
+        return Math.ceil((new Date() - timestamp) / (1000 * 3600 * 24)).toString();
+    },
+    intel: function(){
+        var p = get_current_portal();
+        return p ? p.intel : null;
+    },
+    name: function(){
+        var p = get_current_portal();
+        return p ? p.name : null;
+    },
+    image: function(){
+        var p = get_current_portal();
+        return p ? p.image : null;
+    },
+    stats: function(){
+        var p = get_current_portal();
+        if(!p) return "please wait";
+        var text = "This portal ",
+            hist = p.history.sort(pHistoryPred);
+        if(p.history.length > 1) {
+            text += "took " 
+               + Math.round((hist[0].timestamp - hist[1].timestamp)/(1000*3600*24))
+               + " days to "
+               + (hist[0].what === 'live' ? 'go live' : 'be rejected') + ".";
+        } else {
+            text += "is still waiting for decision.";
+        }
+        return text;
+    }
+});
+
+function portalResponseTimes(){
+return Portals.find({}).fetch()
+    .filter(function(el){
+        return el.history.length > 1;
+    })
+    .map(function(el){
+        return Math.abs(el.history[0].timestamp - el.history[1].timestamp);
+    });
+}
+
+Template.dashboard.helpers({
+    shortestResponse: function(){
+        if (Portals.find({}).count() === 0) return 0;
+        return Math.round(
+            _.min(portalResponseTimes()) / (1000*3600*24));
+    },
+    longestResponse: function(){
+        if (Portals.find({}).count() === 0) return 0;
+        return Math.round(
+            _.max(portalResponseTimes()) / (1000*3600*24));
+    },
+    averageResponse: function(){
+        if (Portals.find({}).count() === 0) return 0;
+        return Math.round(Portals.find({}).fetch()
+            .filter(function(el){
+                return el.history.length > 1;
+            })
+            .map(function(el){
+                return Math.abs(el.history[0].timestamp - el.history[1].timestamp);
+            })
+            .reduce(function(prev, curv){
+                return (prev+curv) / 2;
+            }) / (1000*3600*24));
     }
 });

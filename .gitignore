@@ -38,3 +38,4 @@ bin/
 *.out
 *.toc
 /node_modules
+settings-deploy.json
