@@ -30,3 +30,9 @@ Portals.deny({
         return _.contains(fields, 'submitter');
     }
 });
+
+// HACK: CORS support for deployed configuration
+WebApp.connectHandlers.use(function(req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    next();
+});
