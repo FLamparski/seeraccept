@@ -31,8 +31,3 @@ Portals.deny({
     }
 });
 
-// HACK: CORS support for deployed configuration
-WebApp.connectHandlers.use(function(req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    next();
-});

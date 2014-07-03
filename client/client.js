@@ -7,6 +7,7 @@ Alerts = new Meteor.Collection('alerts');
 Meteor.subscribe('my-portals');
 Meteor.subscribe('alerts');
 
+
 Template.user_loggedOut.events({
     "click .sa-btn-login": function (e, tmpl) {
         Meteor.loginWithGoogle({
@@ -198,3 +199,4 @@ Template.dashboard.helpers({
             }) / (1000*3600*24));
     }
 });
+
