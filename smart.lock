@@ -5,7 +5,9 @@
       "npm": {},
       "bootstrap3-less": {},
       "collection2": {},
-      "cheerio": {}
+      "cheerio": {},
+      "mocha-web-velocity": {},
+      "velocity-html-reporter": {}
     },
     "packages": {
       "npm": {
@@ -20,18 +22,38 @@
       },
       "collection2": {
         "git": "https://github.com/aldeed/meteor-collection2.git",
-        "tag": "v0.4.1",
-        "commit": "a9ffc9b285c3af8ad631f9cda4851b0ffc30c5ce"
+        "tag": "v0.4.2",
+        "commit": "4ff4b707bec8be434919730bf101325adb215444"
       },
       "cheerio": {
         "git": "https://github.com/andreioprisan/meteor-cheerio.git",
         "tag": "v0.3.2",
         "commit": "f7b7b8c4ad4dbac7e9b34a4b110150cd5ec95bae"
       },
+      "mocha-web-velocity": {
+        "git": "https://github.com/mad-eye/meteor-mocha-web.git",
+        "tag": "v0.3.3",
+        "commit": "57776ea64ec5b432ca7b44f97ec42744fdb27520"
+      },
+      "velocity-html-reporter": {
+        "git": "https://github.com/rdickert/velocity-html-reporter.git",
+        "tag": "v0.1.3",
+        "commit": "c7511d3741bacc75edb30c7c217696bfcffdbab4"
+      },
       "simple-schema": {
         "git": "https://github.com/aldeed/meteor-simple-schema.git",
         "tag": "v0.5.1",
         "commit": "a29956b34d03a4591dbd0eaed9d37009ef48b8db"
+      },
+      "mirror": {
+        "git": "https://github.com/xdissent/meteor-mirror.git",
+        "tag": "v0.0.2",
+        "commit": "03d965dcab2f976a1fdc6ce513edcd4c17b75746"
+      },
+      "velocity": {
+        "git": "https://github.com/xolvio/velocity.git",
+        "tag": "v0.1.11",
+        "commit": "a13c44c5acc0f4e7490bc28bc323d3dee799f9a3"
       }
     }
   }

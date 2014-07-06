@@ -3,6 +3,8 @@
     "npm": {},
     "bootstrap3-less": {},
     "collection2": {},
-    "cheerio": {}
+    "cheerio": {},
+    "mocha-web-velocity": {},
+    "velocity-html-reporter": {}
   }
 }

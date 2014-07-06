@@ -20,6 +20,24 @@ submissions, highlighting which of them have been rejected or accepted.
 It will also tell you the minimum, average, and maximum time Niantic has taken
 to review a submission.
 
+### Detailed description ###
+
+SeerAccept will use your G+ profile to automatically determine your account email,
+and then use that information, along with your Google OAuth login to initiate an
+IMAP connection when you click *Refresh Mail*. In this sense, SeerAccept is like
+a mail client. The difference is that it will only pull certain types of messages.
+
+It will search for submissions first, then look for go-live notifications or
+rejections. Most portal info is scraped from the submission email. Additionally,
+SeerAccept will try to scrape intel map links if found within the email.
+The messages are all treated as 'events' in the portal's history, and statistics are
+calculated based on that.
+
+Internally, SeerAccept will log into GMail using XOauth2 over IMAP, and execute
+raw gmail searches for the submission-related terms. Then, Mail-Parser is used to
+generate JS objects for the mail, and all that is divided into categories and
+passed to the mail processor.
+
 Roadmap
 -------
 

@@ -12,3 +12,5 @@ bootstrap3-less
 accounts-base
 collection2
 cheerio
+mocha-web-velocity
+velocity-html-reporter
