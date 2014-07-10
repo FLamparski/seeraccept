@@ -5,6 +5,16 @@ This is an Enlintel project aimed at helping you track your portal submissions.
 Simply log in with your Google account, hit "Refresh mail", and see statistics
 about your submissions.
 
+Usage
+-----
+
+    git clone ...
+    cd seeraccept
+    mrt install
+    meteor run --settings settings.json
+
+Then go to http://localhost:3000/ and log in with G+! *I am working on getting this application deployed on a real server.*
+
 How does it work?
 -----------------
 
