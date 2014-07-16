@@ -40,7 +40,7 @@ MailProcessor.process = function(userId, mail){
         };
     }).map(function(obj){
         Portals.update(
-            {$and: [{'name': obj.title}, {'submitter': obj.submitter}]},
+            {$and: [{'name': new RegExp('^' + obj.title + '$', 'i')}, {'submitter': obj.submitter}]},
             {
             $set: {'intel': obj.intel},
             $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'live' }}
@@ -56,7 +56,7 @@ MailProcessor.process = function(userId, mail){
         };
     }).map(function(obj){
         Portals.update(
-            {$and: [{'name': obj.title}, {'submitter': obj.submitter}]},
+            {$and: [{'name': new RegExp('^' + obj.title + '$', 'i')}, {'submitter': obj.submitter}]},
             {
             $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'rejected' }}
             }

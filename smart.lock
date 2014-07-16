@@ -16,9 +16,9 @@
         "commit": "177ab6118de5bf8cffb19481343d5762ff7a2aaf"
       },
       "bootstrap3-less": {
-        "git": "https://github.com/eprochasson/bootstrap3-less",
-        "tag": "v0.1.9",
-        "commit": "5c812c4d7ce72917a065f0424c3cf54e5ff2d16a"
+        "git": "https://github.com/simison/bootstrap3-less",
+        "tag": "v0.2.1",
+        "commit": "dc94a51ed00d7de6d6f2b6d65107a876d849ad61"
       },
       "collection2": {
         "git": "https://github.com/aldeed/meteor-collection2.git",
@@ -37,8 +37,8 @@
       },
       "velocity-html-reporter": {
         "git": "https://github.com/rdickert/velocity-html-reporter.git",
-        "tag": "v0.1.3",
-        "commit": "c7511d3741bacc75edb30c7c217696bfcffdbab4"
+        "tag": "v0.1.4",
+        "commit": "55f973519fb6db831678219057854b94a4cec846"
       },
       "simple-schema": {
         "git": "https://github.com/aldeed/meteor-simple-schema.git",

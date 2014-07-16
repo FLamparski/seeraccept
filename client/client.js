@@ -7,6 +7,13 @@ Alerts = new Meteor.Collection('alerts');
 Meteor.subscribe('my-portals');
 Meteor.subscribe('alerts');
 
+Deps.autorun(function(){
+    if(!Meteor.userId()){
+        $('body').removeClass('app').addClass('landing');
+    } else {
+        $('body').addClass('app').removeClass('landing');
+    }
+});
 
 Template.user_loggedOut.events({
     "click .sa-btn-login": function (e, tmpl) {
