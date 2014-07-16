@@ -1,0 +1,46 @@
+<template name="dashboard">
+<div class="row">
+    <div class="col-xs-12">
+        <h2>Your submissions</h2>
+        {{>barchart}}
+        <div class="row">
+            <div class="col-xs-4">
+                <h4>Shortest response</h4>
+                <p class="lead"><b>{{shortestResponse}}</b> days</p>
+            </div>
+            <div class="col-xs-4">
+                <h4>Average time</h4>
+                <p class="lead"><b>{{averageResponse}}</b> days</p>
+            </div>
+            <div class="col-xs-4">
+                <h4>Longest response</h4>
+                <p class="lead"><b>{{longestResponse}}</b> days</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-8">
+        <h2>Portal list</h2>
+        {{>portalList}}
+    </div>
+    <div class="col-xs-12 col-sm-4">
+        <h2>Portal details</h2>
+        {{>portalDetails}}
+    </div>
+</div>
+</template>
+
+<template name="barchart">
+<div class="progress">
+    <div class="progress-bar progress-bar-striped" style="width: {{percentSubmitted}}">
+        Sm: {{percentSubmitted}}
+    </div>
+    <div class="progress-bar progress-bar-danger" style="width: {{percentRejected}}">
+        Re: {{percentRejected}}
+    </div> 
+    <div class="progress-bar progress-bar-success" style="width: {{percentLive}}">
+        L: {{percentLive}}
+    </div>
+</div>
+</template>

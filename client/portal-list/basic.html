@@ -1,0 +1,15 @@
+<template name="portalList">
+<div class="portal-list">
+    <div class="list-group">
+    {{#each portals}}
+    <a class="portal-item {{is_active this}} list-group-item-{{css_class this}}" href="#{{_id}}">
+        <img class="img img-portal" width="64" src="{{image}}" />
+        <h4 class="list-group-item-heading"><input type="checkbox"/> {{name}}</h4>
+        <p class="list-group-item-text"><i class="fa fa-cube"></i> Status: {{pstatus this}}</p>
+        <p class="list-group-item-test"><i class="fa fa-paper-plane"></i> (submit date) &bull; <i class="fa fa-clock-o"></i> (...)
+        </p>
+    </a>
+    {{/each}}
+    </div>
+</div>
+</template>

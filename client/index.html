@@ -53,25 +53,6 @@
     <script src="packages/bootstrap3-less/dropdown.js" type="text/javascript"></script>
 </body>
 
-<template name="coverpage">
-<div class="centering cover">
-    <div class="centered jumbotron">
-        <h1>SeerAccept</h1>
-        <p class="lead">Track your portal submissions easily.</p>
-        <p>You will need to log in with Google. This application requires GMail access.</p>
-    </div>
-</div>
-</template>
-
-<template name="spincover">
-<div class="centering cover">
-    <div class="centered jumbotron">
-        <h1>Logging you in...</h1>
-        <p class="lead">Stand by.</p>
-    </div>
-</div>
-</template>
-
 <template name="header">
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
@@ -123,62 +104,6 @@
 <li><button type="button" class="btn btn-primary navbar-btn sa-btn-login">Log in with Google</button></li>
 </template>
 
-<template name="dashboard">
-<div class="row">
-    <div class="col-xs-12">
-        <h2>Your submissions</h2>
-        {{>barchart}}
-        <div class="row">
-            <div class="col-xs-4">
-                <h4>Shortest response</h4>
-                <p class="lead"><b>{{shortestResponse}}</b> days</p>
-            </div>
-            <div class="col-xs-4">
-                <h4>Average time</h4>
-                <p class="lead"><b>{{averageResponse}}</b> days</p>
-            </div>
-            <div class="col-xs-4">
-                <h4>Longest response</h4>
-                <p class="lead"><b>{{longestResponse}}</b> days</p>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-xs-12 col-sm-8">
-        <h2>Portal list</h2>
-        {{>portalList}}
-    </div>
-    <div class="col-xs-12 col-sm-4">
-        <h2>Portal details</h2>
-        {{>portalDetails}}
-    </div>
-</div>
-</template>
-
-<template name="portalDetails">
-{{#if selected_portal}}
-    <div class="thumbnail">
-        <img src="{{image}}" />
-        <div class="caption">
-            <h3>{{name}}</h3>
-            <p class="lead">{{stats}}</p>
-            {{#each events}}
-            <div class="media">
-                <h4 class="media-heading">{{what}}</h4>
-                <p>On {{timestamp}} &mdash; {{relativeDate timestamp}} days ago</p>
-            </div>
-            {{/each}}
-        {{#if intel}}
-        <a class="btn btn-primary" href="{{intel}}">Go Intel</a>
-        {{/if}}
-        </div>
-    </div>
-{{else}}
-    <p>Please select a portal.</p>
-{{/if}}
-</template>
-
 <template name="alerts">
 {{#each alerts}}
   <div class="alert alert-dismissable alert-{{atype}}">
@@ -186,33 +111,5 @@
       <strong>{{atype}}</strong>: {{atext}}
   </div>
 {{/each}}
-</template>
-
-<template name="portalList">
-<div class="portal-list">
-    <div class="list-group">
-    {{#each portals}}
-    <a class="portal-item {{is_active this}} list-group-item-{{css_class this}}" href="#{{_id}}">
-        <img class="img img-portal" width="64" src="{{image}}" />
-        <h4 class="list-group-item-heading">{{name}}</h4>
-        <p class="list-group-item-text">Status: {{pstatus this}}</p>
-    </a>
-    {{/each}}
-    </div>
-</div>
-</template>
-
-<template name="barchart">
-<div class="progress">
-    <div class="progress-bar progress-bar-striped" style="width: {{percentSubmitted}}">
-        Sm: {{percentSubmitted}}
-    </div>
-    <div class="progress-bar progress-bar-danger" style="width: {{percentRejected}}">
-        Re: {{percentRejected}}
-    </div> 
-    <div class="progress-bar progress-bar-success" style="width: {{percentLive}}">
-        L: {{percentLive}}
-    </div>
-</div>
 </template>
 

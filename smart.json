@@ -5,6 +5,7 @@
     "collection2": {},
     "cheerio": {},
     "mocha-web-velocity": {},
-    "velocity-html-reporter": {}
+    "velocity-html-reporter": {},
+    "chartjs": {}
   }
 }
