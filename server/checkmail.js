@@ -126,13 +126,17 @@ Meteor.methods({
                     }
                 });
             }); // getToken
-            var mail = future.wait();
-            var total = mail.submitted.length + mail.live.length + mail.rejected.length;
-            alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
-                    + mail.submitted.length + ' submissions, '
-                    + mail.live.length + ' live, '
-                    + mail.rejected.length + ' rejected. Processing data.');
-            MailProcessor.process(Meteor.userId(), mail);
+            try {
+                var mail = future.wait();
+                var total = mail.submitted.length + mail.live.length + mail.rejected.length;
+                alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
+                        + mail.submitted.length + ' submissions, '
+                        + mail.live.length + ' live, '
+                        + mail.rejected.length + ' rejected. Processing data.');
+                MailProcessor.process(Meteor.userId(), mail);
+            } catch (e) {
+                alert_user(Meteor.userId(), 'warning', 'Error fetching messages: ' + e.toString());
+            }
         } // check_mail
 });
 

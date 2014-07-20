@@ -59,6 +59,7 @@
         <h1>IPSUM</h1>
         <p class="lead">Track your portal submissions easily.</p>
         <p>You will need to log in with Google. This application requires GMail access.</p>
+        <button class="btn btn-lg btn-primary sa-btn-login">Log in with Google</button>
     </div>
 </div>
 </template>
@@ -96,8 +97,6 @@
                 <ul class="nav navbar-nav navbar-right">
                     {{#if currentUser}}
                     {{>user_loggedIn}}
-                    {{else}}
-                    {{>user_loggedOut}}
                     {{/if}}
                 </ul>
             </div><!-- /.navbar-collapse -->
@@ -117,10 +116,6 @@
         </ul>
         </li>
     {{/if}}
-</template>
-
-<template name="user_loggedOut">
-<li><button type="button" class="btn btn-primary navbar-btn sa-btn-login">Log in with Google</button></li>
 </template>
 
 <template name="dashboard">
@@ -204,14 +199,14 @@
 
 <template name="barchart">
 <div class="progress">
-    <div class="progress-bar progress-bar-striped" style="width: {{percentSubmitted}}">
-        Sm: {{percentSubmitted}}
+    <div class="progress-bar progress-bar-striped" style="width: {{percentSubmittedCss}}">
+        Sm: {{percentSubmittedView}}
     </div>
-    <div class="progress-bar progress-bar-danger" style="width: {{percentRejected}}">
-        Re: {{percentRejected}}
+    <div class="progress-bar progress-bar-danger" style="width: {{percentRejectedCss}}">
+        Re: {{percentRejectedView}}
     </div> 
-    <div class="progress-bar progress-bar-success" style="width: {{percentLive}}">
-        L: {{percentLive}}
+    <div class="progress-bar progress-bar-success" style="width: {{percentLiveCss}}">
+        L: {{percentLiveView}}
     </div>
 </div>
 </template>
