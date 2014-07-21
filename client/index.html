@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SeerAccept</title>
+    <title>IPSUM - Ingress Portal Submission Monitor</title>
 
     <!-- Application icons -->
     <link rel="shortcut icon" href="/favicon.ico">
@@ -53,6 +53,26 @@
     <script src="packages/bootstrap3-less/dropdown.js" type="text/javascript"></script>
 </body>
 
+<template name="coverpage">
+<div class="centering cover">
+    <div class="centered jumbotron">
+        <h1>IPSUM</h1>
+        <p class="lead">Track your portal submissions easily.</p>
+        <p>You will need to log in with Google. This application requires GMail access.</p>
+        <button class="btn btn-lg btn-primary sa-btn-login">Log in with Google</button>
+    </div>
+</div>
+</template>
+
+<template name="spincover">
+<div class="centering cover">
+    <div class="centered jumbotron">
+        <h1>Logging you in...</h1>
+        <p class="lead">Stand by.</p>
+    </div>
+</div>
+</template>
+
 <template name="header">
     <nav class="navbar navbar-inverse">
         <div class="container-fluid">
@@ -64,7 +84,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">SeerAccept</a>
+            <a class="navbar-brand" href="#">IPSUM</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -77,8 +97,6 @@
                 <ul class="nav navbar-nav navbar-right">
                     {{#if currentUser}}
                     {{>user_loggedIn}}
-                    {{else}}
-                    {{>user_loggedOut}}
                     {{/if}}
                 </ul>
             </div><!-- /.navbar-collapse -->
@@ -98,10 +116,6 @@
         </ul>
         </li>
     {{/if}}
-</template>
-
-<template name="user_loggedOut">
-<li><button type="button" class="btn btn-primary navbar-btn sa-btn-login">Log in with Google</button></li>
 </template>
 
 <template name="alerts">

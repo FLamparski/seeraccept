@@ -35,16 +35,17 @@ MailProcessor.process = function(userId, mail){
             'submitter': userId,
             'title': msg.subject.slice(21), //skips "Ingress Portal Live: "
             'imageUrl': $('img').attr('src'),
-            'intel': $('a[href^="http://www.ingress.com/intel"]').attr('href'),
+            'intel': $('a[href*="ingress.com/intel"]').attr('href'),
             'date': msg.date
         };
     }).map(function(obj){
+        var updoc = { $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'live' }} };
+        if (!(_.isUndefined(obj.intel))){
+            updoc = _.extend(updoc, {$set: {intel: obj.intel}});
+        }
         Portals.update(
             {$and: [{'name': new RegExp('^' + obj.title + '$', 'i')}, {'submitter': obj.submitter}]},
-            {
-            $set: {'intel': obj.intel},
-            $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'live' }}
-            }
+            updoc
         );
     });
     mail.rejected.map(function(msg){

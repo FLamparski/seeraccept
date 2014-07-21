@@ -19,7 +19,16 @@ function alert_user (uid, atype, atext){
 }
 
 function handle_search_results(type, results, imap, callback){
-    var f = imap.fetch(results, { bodies: '' });
+    var f;
+    try {
+      f = imap.fetch(results, { bodies: '' });
+    } catch (e) {
+      if(e.message === 'Nothing to fetch'){
+        callback(null, []);
+      } else {
+        callback(e, null);
+      }
+    }
     var result = [];
     f.on('message', function(message, seqno){
         var parser = new MailParser();
@@ -59,35 +68,49 @@ function handle_check_mail(user, token, callback){
         tls: true,
         //debug: console.log
     });
-    myImap.once('ready', function() {
-        console.log("GMail ready. Proceeding to search for NIA mail.");
-        myImap.openBox('INBOX', true, function(err, box){
-        if (err) throw err;
+    var onAllMailBoxFound = function(boxname, callback){
+        myImap.openBox(boxname, true, function(err, box){
+        if (err) callback(err, null);
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
             function(err, results){
-                if (err) throw err;
+                if (err) callback(err, null);
                 handle_search_results('submitted', results, myImap, function(err, result){
-                    if (err) throw err;
+                    if (err) callback(err, null);
                     mail.submitted = result;
                 });
             }); // psubs handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
             function(err, results){
-                if (err) throw err;
+                if (err) callback(err, null);
                 handle_search_results('live', results, myImap, function(err, result){
-                    if (err) throw err;
+                    if (err) callback(err, null);
                     mail.live = result;
                 });
             }); // plive handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
             function(err, results){
-                if (err) throw err;
+                if (err) callback(err, null);
                 handle_search_results('rejected', results, myImap, function(err, result){
-                    if (err) throw err;
+                    if (err) callback(err, null);
                     mail.rejected = result;
                 });
             }); // prejected handler
         }); // open box handler
+    };
+    myImap.once('ready', function() {
+        console.log("Connection ready. Looking for boxes.");
+        myImap.getBoxes(function(err, boxes){
+          // Search for [Gmail] or [Google Mail]
+          if (_.keys(boxes).indexOf('[Gmail]') !== -1){
+            onAllMailBoxFound('[Gmail]/' + _.keys(boxes['[Gmail]'].children)[0]); // all mail is #1
+          } else if (_.keys(boxes).indexOf('[Google Mail]') !== -1){
+            onAllMailBoxFound('[Google Mail]' + _.keys(boxes['[Google Mail]'].children)[0]);
+          } else {
+            var e = new Error('Could not find GMail root.');
+            e.boxes = boxes;
+            callback(e, null);
+          }
+        });
     }); // once ready handler
     myImap.once('error', function(error){
         console.error(inspect(error));
@@ -126,13 +149,17 @@ Meteor.methods({
                     }
                 });
             }); // getToken
-            var mail = future.wait();
-            var total = mail.submitted.length + mail.live.length + mail.rejected.length;
-            alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
-                    + mail.submitted.length + ' submissions, '
-                    + mail.live.length + ' live, '
-                    + mail.rejected.length + ' rejected. Processing data.');
-            MailProcessor.process(Meteor.userId(), mail);
+            try {
+                var mail = future.wait();
+                var total = mail.submitted.length + mail.live.length + mail.rejected.length;
+                alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
+                        + mail.submitted.length + ' submissions, '
+                        + mail.live.length + ' live, '
+                        + mail.rejected.length + ' rejected. Processing data.');
+                MailProcessor.process(Meteor.userId(), mail);
+            } catch (e) {
+                alert_user(Meteor.userId(), 'warning', 'Error fetching messages: ' + e.toString());
+            }
         } // check_mail
 });
 

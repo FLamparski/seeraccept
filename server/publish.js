@@ -31,3 +31,8 @@ Portals.deny({
     }
 });
 
+Alerts.allow({
+    remove: function(uid, alert){
+        return alert.uid === uid;
+    }
+});

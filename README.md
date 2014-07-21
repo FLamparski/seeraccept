@@ -1,7 +1,7 @@
-SeerAccept
-==========
+IPSUM
+=====
 
-This is an Enlintel project aimed at helping you track your portal submissions.
+This is a project aimed at helping you track your portal submissions.
 Simply log in with your Google account, hit "Refresh mail", and see statistics
 about your submissions.
 
@@ -18,7 +18,7 @@ Then go to http://localhost:3000/ and log in with G+! *I am working on getting t
 How does it work?
 -----------------
 
-SeerAccept will scan your gmail account for the following queries:
+IPSUM will scan your gmail account for the following queries:
 
 * `from:ingress-support@google.com`
     * `"Ingress Portal Submitted"`
@@ -32,18 +32,18 @@ to review a submission.
 
 ### Detailed description ###
 
-SeerAccept will use your G+ profile to automatically determine your account email,
+IPSUM will use your G+ profile to automatically determine your account email,
 and then use that information, along with your Google OAuth login to initiate an
-IMAP connection when you click *Refresh Mail*. In this sense, SeerAccept is like
+IMAP connection when you click *Refresh Mail*. In this sense, IPSUM is like
 a mail client. The difference is that it will only pull certain types of messages.
 
 It will search for submissions first, then look for go-live notifications or
 rejections. Most portal info is scraped from the submission email. Additionally,
-SeerAccept will try to scrape intel map links if found within the email.
+IPSUM will try to scrape intel map links if found within the email.
 The messages are all treated as 'events' in the portal's history, and statistics are
 calculated based on that.
 
-Internally, SeerAccept will log into GMail using XOauth2 over IMAP, and execute
+Internally, IPSUM will log into GMail using XOauth2 over IMAP, and execute
 raw gmail searches for the submission-related terms. Then, Mail-Parser is used to
 generate JS objects for the mail, and all that is divided into categories and
 passed to the mail processor.
@@ -51,7 +51,7 @@ passed to the mail processor.
 Roadmap
 -------
 
-I want to expand SeerAccept to support the following:
+I want to expand IPSUM to support the following:
 
 * **Merging portal submissions:** If you've submitted the same portal several times,
   you may want to track it as such.
@@ -73,5 +73,5 @@ Want to contribute? Great! Here is what you'll need:
     * *JavaScript origins:* http://localhost:3000/
     * *Callback URL:* http://localhost:3000/_oauth/google?close
 
-Things to note: You might not be able to run SeerAccept on Windows, even with a
+Things to note: You might not be able to run IPSUM on Windows, even with a
 Cygnus environment. Use a VM or a Linux or OS X.

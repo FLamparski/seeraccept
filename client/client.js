@@ -7,15 +7,24 @@ Alerts = new Meteor.Collection('alerts');
 Meteor.subscribe('my-portals');
 Meteor.subscribe('alerts');
 
+var onlogincb = _.once(function(){
+    _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
+        Alerts.remove({_id: a._id});
+    });
+    Meteor.call('check_mail', function(){});
+});
+
 Deps.autorun(function(){
     if(!Meteor.userId()){
         $('body').removeClass('app').addClass('landing');
     } else {
         $('body').addClass('app').removeClass('landing');
+        onlogincb();
     }
 });
 
-Template.user_loggedOut.events({
+
+Template.coverpage.events({
     "click .sa-btn-login": function (e, tmpl) {
         Meteor.loginWithGoogle({
             requestPermissions: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email', 'https://mail.google.com/'],
@@ -57,6 +66,13 @@ Template.header.events({
 Template.alerts.alerts = function (){
     return Alerts.find({});
 };
+
+Template.alerts.events({
+    "click button.close": function(e, tmpl){
+        console.log('alerts.dismiss handler (', this, e, tmpl, ')');
+        Alerts.remove({_id: this._id});
+    }
+});
 
 function pHistoryPred(a, b){
     return b.timestamp - a.timestamp;
@@ -112,19 +128,28 @@ function _percentStatus(what){
     var n_selected = Portals.find({}).fetch().filter(function(el){
             return _pstatus(el) === what;
             }).length;
-    return (Math.floor(10*(n_selected / n_all * 100))/10).toString() + "%";
+    return n_selected / n_all * 100;
 }
 
 Template.barchart.helpers({
-    percentSubmitted: function(){
-        return _percentStatus('submitted');
+    percentSubmittedCss: function(){
+        return _percentStatus('submitted').toString() + '%';
     },
-    percentRejected: function(){
-        return _percentStatus('rejected');
+    percentRejectedCss: function(){
+        return _percentStatus('rejected').toString() + '%';
     },
-    percentLive: function(){
-        return _percentStatus('live');
-    }
+    percentLiveCss: function(){
+        return _percentStatus('live').toString() + '%';
+    },
+    percentSubmittedView: function(){
+        return (Math.round(_percentStatus('submitted') * 10) / 10).toString() + '%';
+    },
+    percentRejectedView: function(){
+        return (Math.round(_percentStatus('rejected') * 10) / 10).toString() + '%';
+    },
+    percentLiveView: function(){
+        return (Math.round(_percentStatus('live') * 10) / 10).toString() + '%';
+    },
 });
 
 function get_current_portal(){
