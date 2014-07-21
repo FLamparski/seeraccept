@@ -19,7 +19,14 @@ function alert_user (uid, atype, atext){
 }
 
 function handle_search_results(type, results, imap, callback){
-    var f = imap.fetch(results, { bodies: '' });
+    var f;
+    try {
+      f = where imap.fetch(results, { bodies: '' });
+    } catch (e) {
+      if(e.message === 'Nothing to fetch!'){
+        callback(null, []);
+      }
+    }
     var result = [];
     f.on('message', function(message, seqno){
         var parser = new MailParser();
