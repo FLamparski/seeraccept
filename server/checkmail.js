@@ -100,16 +100,29 @@ function handle_check_mail(user, token, callback){
     myImap.once('ready', function() {
         console.log("Connection ready. Looking for boxes.");
         myImap.getBoxes(function(err, boxes){
-          // Search for [Gmail] or [Google Mail]
-          if (_.keys(boxes).indexOf('[Gmail]') !== -1){
-            onAllMailBoxFound('[Gmail]/' + _.keys(boxes['[Gmail]'].children)[0]); // all mail is #1
-          } else if (_.keys(boxes).indexOf('[Google Mail]') !== -1){
-            onAllMailBoxFound('[Google Mail]' + _.keys(boxes['[Google Mail]'].children)[0]);
-          } else {
-            var e = new Error('Could not find GMail root.');
-            e.boxes = boxes;
-            callback(e, null);
+          var allmail = null;
+          function traverseBoxes(boxes){
+            var keys = _.keys(boxes);
+            var copied = _.each(keys, function(key){
+              boxes[key]._name = key;
+              if(boxes[key].children){
+                boxes[key].children = traverseBoxes(boxes[key].children);
+                console.log(key);
+              }
+              if(boxes[key].attribs.indexOf('\\All') >= 0){
+                allmail = boxes[key];
+              }
+            });
+            return boxes;
           }
+          traverseBoxes(boxes);
+          if(allmail === null){
+            callback(new Error('Fatal: Could not locate an ALL box!'), null);
+            return;
+          }
+          var allboxname = allmail.parent._name + allmail.parent.delimiter + allmail._name;
+          console.log('==== Allmail is at ', allboxname);
+          onAllMailBoxFound(allboxname, callback);
         });
     }); // once ready handler
     myImap.once('error', function(error){
