@@ -25,8 +25,10 @@ function handle_search_results(type, results, imap, callback){
     } catch (e) {
       if(e.message === 'Nothing to fetch'){
         callback(null, []);
+        return;
       } else {
         callback(e, null);
+        return;
       }
     }
     var result = [];
@@ -75,7 +77,10 @@ function handle_check_mail(user, token, callback){
             function(err, results){
                 if (err) callback(err, null);
                 handle_search_results('submitted', results, myImap, function(err, result){
-                    if (err) callback(err, null);
+                    if (err) {
+                      callback(err, null);
+                      return;
+                    }
                     mail.submitted = result;
                 });
             }); // psubs handler
@@ -83,7 +88,10 @@ function handle_check_mail(user, token, callback){
             function(err, results){
                 if (err) callback(err, null);
                 handle_search_results('live', results, myImap, function(err, result){
-                    if (err) callback(err, null);
+                    if (err) {
+                      callback(err, null);
+                      return;
+                    }
                     mail.live = result;
                 });
             }); // plive handler
@@ -91,7 +99,10 @@ function handle_check_mail(user, token, callback){
             function(err, results){
                 if (err) callback(err, null);
                 handle_search_results('rejected', results, myImap, function(err, result){
-                    if (err) callback(err, null);
+                    if (err) {
+                      callback(err, null);
+                      return;
+                    }
                     mail.rejected = result;
                 });
             }); // prejected handler
@@ -153,6 +164,7 @@ Meteor.methods({
             xoauth2obj.getToken(function(err, token){
                 if(err) {
                     future.throw(err);
+                    return;
                 }
                 handle_check_mail(user, token, function(err, mail){
                     if(err){
