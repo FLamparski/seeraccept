@@ -3,7 +3,7 @@ var Imap = Meteor.require('imap'),
     xoauth2 = Meteor.require('xoauth2'),
     MailParser = Meteor.require('mailparser').MailParser,
     fs = Meteor.require('fs'),
-    imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet'};
+    imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet', 'd': 'not-yet'};
 
 // Since we are checking several searches pretty much simultaneously, we need to
 // keep track of when the three operations finish, and only then close the IMAP connection.
@@ -75,7 +75,7 @@ function handle_check_mail(user, token, callback){
         if (err) callback(err, null);
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
             function(err, results){
-                if (err) callback(err, null);
+                if (err) return callback(err, null);
                 handle_search_results('submitted', results, myImap, function(err, result){
                     if (err) {
                       callback(err, null);
@@ -86,7 +86,7 @@ function handle_check_mail(user, token, callback){
             }); // psubs handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
             function(err, results){
-                if (err) callback(err, null);
+                if (err) return callback(err, null);
                 handle_search_results('live', results, myImap, function(err, result){
                     if (err) {
                       callback(err, null);
@@ -97,7 +97,7 @@ function handle_check_mail(user, token, callback){
             }); // plive handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
             function(err, results){
-                if (err) callback(err, null);
+                if (err) return callback(err, null);
                 handle_search_results('rejected', results, myImap, function(err, result){
                     if (err) {
                       callback(err, null);
@@ -106,6 +106,17 @@ function handle_check_mail(user, token, callback){
                     mail.rejected = result;
                 });
             }); // prejected handler
+        myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Duplicate"']],
+            function(err, results){
+              if (err) return callback(err, null);
+              handle_search_results('duplicate', results, myImap, function(err, result){
+                  if (err) {
+                    callback(err, null);
+                    return;
+                  }
+                  mail.duplicates = result;
+              });
+            }); // pdupe handler
         }); // open box handler
     };
     myImap.once('ready', function() {
