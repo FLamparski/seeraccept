@@ -1,0 +1,73 @@
+{
+  "dependencies": {
+    "cheerio": {
+      "version": "0.12.3",
+      "dependencies": {
+        "cheerio-select": {
+          "version": "0.0.3",
+          "dependencies": {
+            "CSSselect": {
+              "version": "0.7.0",
+              "dependencies": {
+                "CSSwhat": {
+                  "version": "0.4.7"
+                },
+                "domutils": {
+                  "version": "1.4.3",
+                  "dependencies": {
+                    "domelementtype": {
+                      "version": "1.1.1"
+                    }
+                  }
+                },
+                "boolbase": {
+                  "version": "1.0.0"
+                },
+                "nth-check": {
+                  "version": "1.0.0"
+                }
+              }
+            }
+          }
+        },
+        "htmlparser2": {
+          "version": "3.1.4",
+          "dependencies": {
+            "domhandler": {
+              "version": "2.0.3"
+            },
+            "domutils": {
+              "version": "1.1.6"
+            },
+            "domelementtype": {
+              "version": "1.1.1"
+            },
+            "readable-stream": {
+              "version": "1.0.31",
+              "dependencies": {
+                "core-util-is": {
+                  "version": "1.0.1"
+                },
+                "isarray": {
+                  "version": "0.0.1"
+                },
+                "string_decoder": {
+                  "version": "0.10.31"
+                },
+                "inherits": {
+                  "version": "2.0.1"
+                }
+              }
+            }
+          }
+        },
+        "underscore": {
+          "version": "1.4.4"
+        },
+        "entities": {
+          "version": "0.5.0"
+        }
+      }
+    }
+  }
+}

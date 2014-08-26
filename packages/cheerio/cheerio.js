@@ -1,0 +1,1 @@
+cheerio = Npm.require('cheerio');
