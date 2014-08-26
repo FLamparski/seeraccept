@@ -1,9 +1,8 @@
-var Imap = Meteor.require('imap'),
-    inspect = Meteor.require('util').inspect,
-    xoauth2 = Meteor.require('xoauth2'),
-    MailParser = Meteor.require('mailparser').MailParser,
+var inspect = Meteor.require('util').inspect,
     fs = Meteor.require('fs'),
     imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet'};
+
+console.log(_.keys(global));
 
 // Since we are checking several searches pretty much simultaneously, we need to
 // keep track of when the three operations finish, and only then close the IMAP connection.
@@ -131,7 +130,7 @@ Meteor.methods({
             this.unblock(); // this is mostly a call-backy thingy
             var user = Meteor.user(),
                 keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
-                xoauth2obj = xoauth2.createXOAuth2Generator({
+                xoauth2obj = XOauth2.createXOAuth2Generator({
                     user: user.services.google.email,
                     clientId: keys.clientId,
                     clientSecret: keys.secret,

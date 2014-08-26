@@ -4,14 +4,18 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-npm
-less
 accounts-google
 accounts-ui-unstyled
-bootstrap3-less
 accounts-base
 collection2
+mrt:chartjs@0.0.6
+aldeed:collection2
+iron:router
+less
+bootstrap3-less
+arunoda:npm
 cheerio
-mocha-web-velocity
-velocity-html-reporter
-chartjs
+imap
+mailparser
+xoauth2
+

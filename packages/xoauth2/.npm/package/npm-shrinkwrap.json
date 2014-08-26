@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "xoauth2": {
+      "version": "0.1.8"
+    }
+  }
+}

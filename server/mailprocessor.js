@@ -1,5 +1,4 @@
 MailProcessor = {};
-var cheerio = Meteor.require('cheerio');
 
 MailProcessor.process = function(userId, mail){
     /*
