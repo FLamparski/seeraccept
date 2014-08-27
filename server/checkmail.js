@@ -1,6 +1,6 @@
 var inspect = Meteor.require('util').inspect,
     fs = Meteor.require('fs'),
-    imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet'};
+    imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet', 'd': 'not-yet'};
 
 // Since we are checking several searches pretty much simultaneously, we need to
 // keep track of when the three operations finish, and only then close the IMAP connection.
@@ -22,8 +22,10 @@ function handle_search_results(type, results, imap, callback){
     } catch (e) {
       if(e.message === 'Nothing to fetch'){
         callback(null, []);
+        return;
       } else {
         callback(e, null);
+        return;
       }
     }
     var result = [];
@@ -70,43 +72,76 @@ function handle_check_mail(user, token, callback){
         if (err) callback(err, null);
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
             function(err, results){
-                if (err) callback(err, null);
+                if (err) return callback(err, null);
                 handle_search_results('submitted', results, myImap, function(err, result){
-                    if (err) callback(err, null);
+                    if (err) {
+                      callback(err, null);
+                      return;
+                    }
                     mail.submitted = result;
                 });
             }); // psubs handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Live"']],
             function(err, results){
-                if (err) callback(err, null);
+                if (err) return callback(err, null);
                 handle_search_results('live', results, myImap, function(err, result){
-                    if (err) callback(err, null);
+                    if (err) {
+                      callback(err, null);
+                      return;
+                    }
                     mail.live = result;
                 });
             }); // plive handler
         myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Rejected"']],
             function(err, results){
-                if (err) callback(err, null);
+                if (err) return callback(err, null);
                 handle_search_results('rejected', results, myImap, function(err, result){
-                    if (err) callback(err, null);
+                    if (err) {
+                      callback(err, null);
+                      return;
+                    }
                     mail.rejected = result;
                 });
             }); // prejected handler
+        myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Duplicate"']],
+            function(err, results){
+              if (err) return callback(err, null);
+              handle_search_results('duplicate', results, myImap, function(err, result){
+                  if (err) {
+                    callback(err, null);
+                    return;
+                  }
+                  mail.duplicates = result;
+              });
+            }); // pdupe handler
         }); // open box handler
     };
     myImap.once('ready', function() {
         console.log("Connection ready. Looking for boxes.");
         myImap.getBoxes(function(err, boxes){
-          // Search for [Gmail] or [Google Mail]
-          if (_.keys(boxes).indexOf('[Gmail]') !== -1){
-            onAllMailBoxFound('[Gmail]/' + _.keys(boxes['[Gmail]'].children)[0]); // all mail is #1
-          } else if (_.keys(boxes).indexOf('[Google Mail]') !== -1){
-            onAllMailBoxFound('[Google Mail]' + _.keys(boxes['[Google Mail]'].children)[0]);
-          } else {
-            var e = new Error('Could not find GMail root.');
-            e.boxes = boxes;
-            callback(e, null);
+          var allmail = null;
+          function traverseBoxes(boxes){
+            var keys = _.keys(boxes);
+            var copied = _.each(keys, function(key){
+              boxes[key]._name = key;
+              if(boxes[key].children){
+                boxes[key].children = traverseBoxes(boxes[key].children);
+                console.log(key);
+              }
+              if(boxes[key].attribs.indexOf('\\All') >= 0){
+                allmail = boxes[key];
+              }
+            });
+            return boxes;
           }
+          traverseBoxes(boxes);
+          if(allmail === null){
+            callback(new Error('Fatal: Could not locate an ALL box!'), null);
+            return;
+          }
+          var allboxname = allmail.parent._name + allmail.parent.delimiter + allmail._name;
+          console.log('==== Allmail is at ', allboxname);
+          onAllMailBoxFound(allboxname, callback);
         });
     }); // once ready handler
     myImap.once('error', function(error){
@@ -137,6 +172,7 @@ Meteor.methods({
             xoauth2obj.getToken(function(err, token){
                 if(err) {
                     future.throw(err);
+                    return;
                 }
                 handle_check_mail(user, token, function(err, mail){
                     if(err){
