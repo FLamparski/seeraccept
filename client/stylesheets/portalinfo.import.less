@@ -1,0 +1,181 @@
+// Include at the end of main.less
+
+.portal-info-drawer {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  z-index: 40; // above regular content but behind the app bar and navdrawer
+  height: 100%;
+  padding-left: 8px;
+  padding-right: 10px;
+  @media (min-width: 0px) and (max-width: @screen-xs-max) {
+    width: 100%;
+    padding-top: 40px;
+  }
+  @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+    width: 66.6666667%;
+    padding-top: 40px;
+  }
+  @media (min-width: @screen-md-min){
+    width: 480px;
+    padding-top: 40px;
+  }
+  @media (min-width: @screen-lg-min) {
+    padding-top: 100px !important;
+  }
+  background-color: white;
+  box-shadow: -4px 0px 10px rgba(0, 0, 0, 0.3);
+  overflow: auto; // Allow scrollbars to be generated
+
+ .btn-heading {
+    border: none;
+    background-color: transparent;
+    color: @gray-dark;
+
+    &.btn-portaltools {
+      > span > i.fa,
+      > small {
+        color: @blue_grey_600;
+      }
+    }
+  }
+
+  .square-borders (){
+    border-radius: 0px !important;
+  }
+  .btn-ingress {
+    .square-borders();
+    .button-variant(darken(#11ecf7, 30%), lighten(desaturate(#11ecf7, 5%), 40%), rgba(0,0,0,0)); 
+  }
+
+  .btn-gmaps {
+    .square-borders();
+    .button-variant(darken(#8EC44F, 30%), lighten(#8EC44F, 30%), rgba(0,0,0,0));
+  }
+
+  .btn-citymapper {
+    .square-borders();
+    .button-variant(darken(#38AB2E, 30%), lighten(#38AB2E, 30%), rgba(0,0,0,0));
+  }
+
+  .portal-title {
+    width: 100%;
+    margin: 0px -10px;
+    padding-top: 15px;
+    padding-bottom: 10px;
+    .label();
+
+    .fa {
+      color: @gray-darker;
+    }
+  }
+
+  .portal-photo {
+    margin: 5px -10px 5px;
+    background-color: @gray-darker;
+  }
+
+  table td.attrname {
+    font-weight: bold;
+    text-align: right;
+  }
+
+  .timeline {
+    &:before{
+      content: '';
+      height: 100%;
+      width: 2px;
+      background-color: @gray-dark;
+      position: absolute;
+      top: 0;
+      left: 14px;
+      user-select: none;
+    }
+
+    position: relative;
+
+    > li {
+      margin-left: 32px;
+      margin-bottom: 20px;
+      display: block;
+      padding: 10px 15px;
+      border: 1px solid @gray-light;
+      border-radius: 3px;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      position: relative;
+
+      &:before {
+        content: '';
+        border-radius: 100%;
+        width: 28px;
+        height: 28px;
+        background-color: white;
+        border: 1px solid @gray-light;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        position: absolute;
+        top: 8px;
+        left: -32px;
+        padding-top: 4px;
+        padding-left: 4px;
+        user-select: none;
+      }
+
+      &:first-child {
+        margin-top: 10px;
+      }
+      &:last-child {
+        margin-bottom: 5px !important;
+      }
+
+      &.success {
+        &:before {
+          content: '\f00c' !important;
+          font-family: FontAwesome;
+          background-color: @state-success-bg;
+          border-color: @state-success-border;
+          color: darken(@state-success-border, 50%);
+          text-shadow: 1px 1px 0px white;
+          user-select: none;
+        }
+        background-color: @state-success-bg;
+        border-color: @state-success-border;
+      }
+      &.info {
+        &:before {
+          content: '\f1d8';
+          font-family: FontAwesome;
+          background-color: @state-info-bg;
+          border-color: @state-info-border;
+          color: darken(@state-info-border, 50%);
+          text-shadow: 1px 1px 0px white;
+		  user-select: none;
+        }
+        background-color: @state-info-bg;
+        border-color: @state-info-border;
+      }
+      &.danger {
+        &:before {
+          content: '\f00d';
+          font-family: FontAwesome;
+          background-color: @state-danger-bg;
+          border-color: @state-danger-border;
+          color: darken(@state-danger-border, 50%);
+          text-shadow: 1px 1px 0px white;
+          padding-top: 3px;
+          padding-left: 6px;
+          user-select: none;
+        }
+        background-color: @state-danger-bg;
+        border-color: @state-danger-border;
+      }
+      
+      &.resolution {
+        box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.3);
+
+        &:before {
+          box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+}

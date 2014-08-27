@@ -1,0 +1,31 @@
+// Needs to be included below Bootstrap in main.less
+
+.nav-drawer {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 50; // above regular content but behind the app bar
+  height: 100%;
+  padding-left: 10px;
+  padding-right: 8px;
+  .label();
+  @media (min-width: 0px) and (max-width: @screen-xs-max) {
+    min-width: 200px;
+    width: 40%;
+    padding-top: 40px;
+  }
+  @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+    min-width: 200px;
+    width: 20%;
+    padding-top: 40px;
+  }
+  @media (min-width: @screen-md-min){
+    width: 240px;
+    padding-top: 40px;
+  }
+  @media (min-width: @screen-lg-min) {
+    padding-top: 100px !important;
+  }
+  background-color: white;
+  box-shadow: 4px 0px 10px rgba(0, 0, 0, 0.3);
+}

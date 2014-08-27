@@ -1,0 +1,33 @@
+@font-path: '../fonts';
+
+.font-face (@family, @weight, @style) {
+  @font-face {
+    font-family: @family;
+    src:url('@{font-path}/@{family}.eot');
+    src:url('@{font-path}/@{family}.eot?#iefix') format('embedded-opentype'),
+        url('@{font-path}/@{family}.woff') format('woff'),
+        url('@{font-path}/@{family}.ttf') format('truetype'),
+        url('@{font-path}/@{family}.svg#icon') format('svg');
+    font-weight: @weight;
+    font-style: @style;
+  }
+}
+
+.font-face('Roboto-Regular', normal, normal);
+.font-face('Roboto-Light', 100, normal);
+.font-face('RobotoCondensed-Bold', 600, normal);
+
+// Bootstrap variables
+@font-family-sans-serif: 'Roboto-Regular', Roboto, /* fallback if installed */
+                         'Helvetica Neue', 'Ubuntu', sans-serif;
+
+@headings-font-family: 'Roboto-Light', @font-family-sans-serif;
+@headings-font-weight: 100;
+
+@font-size-base: 16px;
+
+h5, h6 {
+  font-family: 'RobotoCondensed-Bold', 'Roboto Condensed', @headings-font-family !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+}
