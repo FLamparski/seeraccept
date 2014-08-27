@@ -23,32 +23,55 @@ Deps.autorun(function(){
     }
 });
 
-
-Template.coverpage.events({
-    "click .sa-btn-login": function (e, tmpl) {
-        Meteor.loginWithGoogle({
-            requestPermissions: ['https://www.googleapis.com/auth/plus.login', 'https://www.googleapis.com/auth/userinfo.email', 'https://mail.google.com/'],
-            requestOfflineToken: true
-        }, function (err) {
-            if(err) {
-                console.error(err);
-            } else {
-                console.log("User logged in.");
-            }
-        });
-    }
+Router.configure({
+  layoutTemplate: 'layout'
 });
-
-Template.user_loggedIn.events({
-    "click #logout": function (e, tmpl) {
-        Meteor.logout(function (err) {
-            if(err){
-                console.error(err);
-            } else {
-                console.log("User logged out.");
-            }
-        });
+Router.waitOn(function(){
+  return [Meteor.subscribe('my-portals'), Meteor.subscribe('alerts')];
+});
+Router.onBeforeAction(function(pause){
+  if(!Meteor.userId() && !Meteor.loggingIn()){
+    this.render('login');
+    pause();
+  }
+}, {except: ['home', 'shared', 'logout', 'help']});
+Router.map(function() {
+  this.route('logout', {
+    action: function() {
+      Meteor.logout(function(err) {
+        if (err) {
+          console.error(err);
+        }
+        Session.keys = {};
+        Router.go('home');
+      });
     }
+  });
+  this.route('dashboard');
+  this.route('home', {
+    path: '/',
+    onBeforeAction: function(pause) {
+      if (Meteor.loggingIn()) {
+        this.render('spincover');
+        pause();
+      } else if (Meteor.userId()) {
+        Router.go('dashboard');
+        pause();
+      } else {
+        this.render('login');
+        pause();
+      }
+    }
+  });
+  this.route('portals');
+  this.route('portalDetails', {
+    path: 'portal/:portalId',
+    onBeforeAction: function(pause) {
+      Session.set('portalId', this.params.portalId);
+      Router.go('portals');
+      pause();
+    }
+  });
 });
 
 Template.header.events({

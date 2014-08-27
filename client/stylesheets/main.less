@@ -32,6 +32,28 @@ body.drawer-open {
   height: 100%;
 }
 
+.wrapper.logged-out {
+  background: url('/cover.jpg') no-repeat center center;
+  background-size: cover; 
+
+  .centering.cover {
+    .center-block();
+    margin-top: 100px;
+    width: 50%;
+    .jumbotron {
+      border-radius: 5px;
+      background-color: fade(@gray-lighter, 90%);
+      box-shadow: 0px 2px 3px fade(@gray-light, 90%);
+
+      .ic_seeraccept {
+        .img-responsive();
+        .pull-right();
+        width: 128px;
+      }
+    }
+  }
+}
+
 .sidebar {
   .make-lg-column(2);
   background-color: $blue_grey_50;

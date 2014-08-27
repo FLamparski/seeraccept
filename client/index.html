@@ -1,8 +1,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>IPSUM - Ingress Portal Submission Monitor</title>
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, user-scalable=no">
+    <title>Ipsum</title>
 
     <!-- Application icons -->
     <link rel="shortcut icon" href="/favicon.ico">
@@ -34,26 +34,15 @@
     <![endif]-->
 </head>
 
-<body>
-  <div class="wrapper">
-    {{> header}}
+<template name="layout">
+  <div class="wrapper {{#if currentUser}}logged-in{{else}}logged-out{{/if}}">
+    {{#if currentUser}}{{> header}}{{/if}}
 
-    <div class="container">
-        {{>alerts}}
-        {{#if currentUser}}
-          {{#if loggingIn}}
-            {{>spincover}}
-          {{else}}
-            {{>dashboard}}
-          {{/if}}
-        {{else}}
-          {{>coverpage}}
-        {{/if}}
+    <div class="container-fluid">
+      {{>yield}}
     </div>
   </div>
-    <script src="packages/bootstrap3-less/collapse.js" type="text/javascript"></script>
-    <script src="packages/bootstrap3-less/dropdown.js" type="text/javascript"></script>
-</body>
+</template>
 
 <template name="header">
     <div class="container-fluid">
@@ -72,31 +61,17 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
             <ul class="dropdown-menu" role="menu">
               <li class="dropdown-header">Ipsum</li>
-              <li><a href="#">Help</a></li>
+              <li><a href="{{pathFor 'help'}}">Help</a></li>
               <li><a href="#">Report an issue</a></li>
               <li class="divider"></li>
-              <li class="dropdown-header">Filip Wieland</li>
+              <li class="dropdown-header">{{currentUser.profile.nickname}}</li>
               <li><a href="#">My settings</a></li>
-              <li><a href="#">Sign Out</a></li>
+              <li><a href="{{pathFor 'logout'}}">Sign Out</a></li>
             </ul>
           </li>
         </ul>
       </div>
     </div>
-</template>
-
-<template name="user_loggedIn">
-    {{#if loggingIn}}
-        <li><a>Logging you in...</a></li>
-    {{else}}
-        <li><img class="avatar" src="{{currentUser.profile.avatar_url}}" /></li>
-        <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{currentUser.profile.nickname}} <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-            <li><a href="#" id="logout">Log out</a></li>
-        </ul>
-        </li>
-    {{/if}}
 </template>
 
 <template name="alerts">
