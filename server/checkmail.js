@@ -2,8 +2,6 @@ var inspect = Meteor.require('util').inspect,
     fs = Meteor.require('fs'),
     imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet'};
 
-console.log(_.keys(global));
-
 // Since we are checking several searches pretty much simultaneously, we need to
 // keep track of when the three operations finish, and only then close the IMAP connection.
 // it's not the most complex flag ever, but it's getting there.
