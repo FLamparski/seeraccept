@@ -1,15 +1,47 @@
-<template name="portalList">
-<div class="portal-list">
-    <div class="list-group">
-    {{#each portals}}
-    <a class="portal-item {{is_active this}} list-group-item-{{css_class this}}" href="#{{_id}}">
-        <img class="img img-portal" width="64" src="{{image}}" />
-        <h4 class="list-group-item-heading"><input type="checkbox"/> {{name}}</h4>
-        <p class="list-group-item-text"><i class="fa fa-cube"></i> Status: {{pstatus this}}</p>
-        <p class="list-group-item-test"><i class="fa fa-paper-plane"></i> (submit date) &bull; <i class="fa fa-clock-o"></i> (...)
-        </p>
-    </a>
-    {{/each}}
+<template name="portals">
+<div class="main">
+  <div class="main-content">
+    <div class="main-content-item col-xs-12">
+      <div id="portalTable">
+        <header>
+          <table class="table table-condensed">
+            <tr>
+              <th></th>
+              <th class="col-sm-6">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></th>
+              <th class="col-sm-2">Submitted <a href="#" class="btn {{#if sortBy 'submitted'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="submitted"><i class="fa fa-{{sortState 'submitted'}}"></i></a></th>
+              <th class="hidden-xs col-sm-2">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
+              <th class="hidden-xs col-sm-1"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
+            </tr>
+          </table>
+        </header>
+        <table class="table table-hover">
+          {{#each portals}}
+          <tr class="portal portal-{{portalStatus}} {{isActive _id}}"
+              data-portal="{{_id}}">
+            <td>
+              <div class="portalimg img img-circle" style="background-image: url({{image}});">Image for {{name}}</div>
+            </td>
+            <td class="col-sm-6">
+              {{name}}
+            </td>
+            <td class="col-sm-2">
+              {{submissionDate}}
+            </td>
+            <td class="col-sm-2">
+              {{portalStatus}}
+            </td>
+            <td class="col-sm-1">
+              {{#if hasReview}}
+                {{daysToReview}} days
+              {{else}}
+                <span class="text-muted">not reviewed</span>
+              {{/if}}
+            </td>
+          </tr>
+          {{/each}}
+        </table>
+      </div>
     </div>
+  </div>
 </div>
 </template>

@@ -2,6 +2,8 @@
 @import 'colours.import.less';
 @import 'typography.import.less';
 
+@import '../lib/jquery.growl.import.less';
+
 .label, .ui-label {
   user-select: none;
   -webkit-user-select: none;
@@ -171,7 +173,6 @@ body.drawer-open {
 
   .dropdown-menu {
     top: 45px !important;
-    left: -111px !important;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
   }
@@ -212,7 +213,7 @@ body.drawer-open {
   .main-content {
     .make-row();
     @media (min-width: @screen-lg-min){
-      padding-top: 140px;
+      padding-top: 120px;
     }
     @media (min-width: 0px) and (max-width: @screen-md-max){
       padding-top: 60px;
@@ -233,6 +234,17 @@ table, .table > tbody {
     text-transform: uppercase;
     .ui-label();
   }
+}
+
+.portalimg {
+  .text-hide();
+  .ui-label();
+  width: 48px;
+  height: 48px;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 2px auto;
 }
 
 #portalTable > header > table {

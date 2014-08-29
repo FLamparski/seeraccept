@@ -4,7 +4,10 @@ return Portals.find({}).fetch()
         return el.history.length > 1;
     })
     .map(function(el){
-        return Math.abs(el.history[0].timestamp - el.history[1].timestamp);
+        var sortedHistory = _.sortBy(el.history, 'timestamp');
+        var earliest = moment(_.first(sortedHistory).timestamp);
+        var latest = moment(_.last(sortedHistory).timestamp);
+        return moment.duration(latest.diff(earliest)).asDays();
     });
 }
 
@@ -12,31 +15,31 @@ Template.dashboard.helpers({
     shortestResponse: function(){
         if (Portals.find({}).count() === 0) return 0;
         return Math.round(
-            _.min(portalResponseTimes()) / (1000*3600*24));
+            _.min(portalResponseTimes()));
     },
     longestResponse: function(){
         if (Portals.find({}).count() === 0) return 0;
         return Math.round(
-            _.max(portalResponseTimes()) / (1000*3600*24));
+            _.max(portalResponseTimes()));
     },
     averageResponse: function(){
         if (Portals.find({}).count() === 0) return 0;
-        return Math.round(Portals.find({}).fetch()
-            .filter(function(el){
-                return el.history.length > 1;
-            })
-            .map(function(el){
-                return Math.abs(el.history[0].timestamp - el.history[1].timestamp);
-            })
-            .reduce(function(prev, curv){
-                return (prev+curv) / 2;
-            }, []) / (1000*3600*24));
+        return Math.round(portalResponseTimes().reduce(function(memo, num) {
+          if (memo) return (memo + num) / 2;
+          else return num; 
+        }, null));
+    },
+    humanize: function(days) {
+      return moment.duration(days, 'days').humanize();
     },
     countPortals: function(what) {
       return countPortalsWhichAre(what, Portals.find().fetch());
     },
     totalPortals: function() {
       return Portals.find().count();
+    },
+    isNextSeerAvailable: function() {
+      return countPortalsWhichAre('live', Portals.find().fetch()) < 5000;
     }
 });
 
@@ -117,6 +120,28 @@ Template.portalPieChart.rendered = function(){
   }, 1000);
 };
 
-Template.portalPieChart.destroyed = function(){
+Template.portalPieChart.destroyed = function() {
   this._portalObserver.stop();
+};
+
+Template.badgeProgress.nextSeerBadge = function() {
+  var levels = [
+    { name: 'Before', minimum: 0 },
+    { name: 'Bronze', minimum: 10 },
+    { name: 'Silver', minimum: 50 },
+    { name: 'Gold', minimum: 200 },
+    { name: 'Platinum', minimum: 500 },
+    { name: 'Black', minimum: 5000 }
+  ];
+  var currentCount = countPortalsWhichAre('live', Portals.find().fetch());
+  var currentLevel = _.last(_.filter(levels, function (level) { 
+    return level.minimum <= currentCount; 
+  }));
+  var nextLevel = levels[levels.indexOf(currentLevel) + 1];
+  return {
+    currentLevel: currentLevel.name,
+    toNextLevel: nextLevel.minimum - currentCount,
+    nextLevel: nextLevel.name,
+    percent: currentCount / nextLevel.minimum * 100
+  };
 };

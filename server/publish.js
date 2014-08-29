@@ -5,8 +5,8 @@ Portals.attachSchema(Schemas.Portal);
 Alerts = new Meteor.Collection('alerts');
 
 
-Meteor.publish('my-portals', function() {
-    return Portals.find({submitter: this.userId});
+Meteor.publish('portals', function(who) {
+    return Portals.find({submitter: who});
 });
 
 Meteor.publish('alerts', function() {

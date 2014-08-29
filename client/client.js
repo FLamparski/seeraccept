@@ -4,12 +4,14 @@ Portals = new Meteor.Collection('portals');
 Portals.attachSchema(Schemas.Portal);
 Alerts = new Meteor.Collection('alerts');
 
-Meteor.subscribe('my-portals');
-Meteor.subscribe('alerts');
-
 var onlogincb = _.once(function(){
     _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
         Alerts.remove({_id: a._id});
+        Alerts.find({uid: Meteor.userId()}).observe({
+          added: function(alert) {
+            $.growl[alert.atype]({title: alert.type, message: alert.atext, location: 'br'});
+          }
+        });
     });
     Meteor.call('check_mail', function(){});
 });
@@ -25,9 +27,6 @@ Deps.autorun(function(){
 
 Router.configure({
   layoutTemplate: 'layout'
-});
-Router.waitOn(function(){
-  return [Meteor.subscribe('my-portals'), Meteor.subscribe('alerts')];
 });
 Router.onBeforeAction(function(pause){
   if(!Meteor.userId() && !Meteor.loggingIn()){
@@ -50,6 +49,9 @@ Router.map(function() {
   this.route('dashboard', {
       onBeforeAction: function (pause){
         Session.set('pageSubtitle', 'Your Dashboard'); 
+      },
+      waitOn: function() {
+        return Meteor.subscribe('portals', Meteor.userId());
       }
   });
   this.route('home', {
@@ -68,19 +70,62 @@ Router.map(function() {
     }
   });
   this.route('portals', {
+    path: 'portals/:owner',
     onBeforeAction: function(pause) {
-      Session.set('pageSubtitle', 'Your Submissions');
+      if(this.ready()) {
+        var u;
+        if (this.params.owner === 'me') {
+          console.log('route: my portals');
+          Session.set('screenTitle', 'Your Submissions');
+          this.params.owner = Meteor.userId();
+        } else if (u = Meteor.users.findOne({_id: this.params.owner})) {
+          Session.set('screenTitle', u.profile.nickname + '\'s Submissions');
+        }
+      }
+    },
+    waitOn: function() {
+      if (this.params.owner === 'me') {
+        console.log('magic me found: rewrite to %s', Meteor.userId());
+        this.params.owner = Meteor.userId();
+      }
+      console.log('Will wait for %s\'s portals and users', this.params.owner);
+      return [
+        Meteor.subscribe('portals', this.params.owner),
+        {
+          ready: function() {
+            var nusers = Meteor.users.find().count();
+            return nusers > 0;
+          }
+        }
+      ];
+    },
+    data: function() {
+      if(this.ready()){
+        var ent;
+        console.log('Looking for portals whose owner is entity id %s', this.params.owner);
+        console.log('Currently has %d users', Meteor.users.find().count());
+        if (Meteor.users.findOne({_id: this.params.owner})) {
+          ent = Meteor.users.findOne({_id: this.params.owner});
+          console.log('Found user %s for %s', ent.profile.nickname, ent._id);
+          ent._type = ent._id === Meteor.userId() ? 'self' : 'other';
+        }
+        var portals = Portals.find({submitter: ent._id});
+        console.log('%s has %d portals', ent._id, portals.count());
+        return {
+          owner: ent,
+          portals: portals
+        };
+      }
     } 
   });
   this.route('portalDetails', {
     path: 'portal/:portalId',
     onBeforeAction: function(pause) {
       Session.set('portalId', this.params.portalId);
-      Router.go('portals');
+      render('portals');
       pause();
     }
   });
-  this.route('help');
 });
 
 Template.header.events({
@@ -92,17 +137,6 @@ Template.header.events({
         } else {
             Meteor.call('check_mail', function (){});
         }
-    }
-});
-
-Template.alerts.alerts = function (){
-    return Alerts.find({});
-};
-
-Template.alerts.events({
-    "click button.close": function(e, tmpl){
-        console.log('alerts.dismiss handler (', this, e, tmpl, ')');
-        Alerts.remove({_id: this._id});
     }
 });
 
@@ -129,7 +163,7 @@ window._portals_ascDateSortPredicate = function(a, b) {
 
 window._portals_sortPredicate = _portals_statusSortPredicate;
 
-Template.portalList.helpers({
+/*Template.portalList.helpers({
     portals: function (){
                 return Portals.find({}).fetch()
                 .sort(_portals_sortPredicate);
@@ -148,12 +182,13 @@ Template.portalList.helpers({
                     'rejected': 'danger'
                 }[_pstatus(portal)];
             }
-});
-Template.portalList.events({
+});*/
+
+/*Template.portalList.events({
     "click .portal-item": function() {
         Session.set("selected_portal", this._id);
     }
-});
+});*/
 
 
 
@@ -210,4 +245,42 @@ Template.header.events({
       console.log(arguments);
     });
   }
+});
+
+Template.header.rendered = function(){
+  var self = this;
+  var oldPos = self.$('.dropdown-menu').offset();
+  var myWidth = self.$('.dropdown-menu').outerWidth();
+  var activatorWidth = self.$('.dropdown-toggle').outerWidth();
+  var newPos = { top: oldPos.top, left: activatorWidth - myWidth };
+  console.log('Moving the dropdown menu from (%d, %d) to (%d, %d)', oldPos.left,
+      oldPos.top, newPos.left, newPos.top);
+  self.$('.dropdown-menu').offset(newPos);
+};
+
+Template.header.events({
+  'click .drawer-toggle': function(tpl, e) {
+    $('.sidebar-nav-drawer').drawer('toggle', 150);
+  }
+});
+
+Template.sidebar.activeFor = function(route){
+  return route === 'myDashboard' ? {class: 'active'} : '';
+};
+
+Template.sidebar.rendered = function() {
+  this.$('.sidebar-nav-drawer').drawer('left');
+};
+
+Template.sidebar.events({
+  'click a': function() {
+    $('.sidebar-nav-drawer').drawer('hide');
+  }
+});
+
+UI.registerHelper('eq', function(a, b) {
+  return a == b;
+});
+UI.registerHelper('downcase', function(str) {
+  return str && str.toLowerCase();
 });

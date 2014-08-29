@@ -2,10 +2,10 @@
   <div class="main">
     <div class="main-content">
       <div class="main-content-item col-xs-12">
-        <h2>Submission Dashboard</h2>
+        <h2>Submission status</h2>
         <hr />
         <div class="row">
-          <div class="col-md-3 col-md-push-2">
+          <div class="col-md-3 col-md-push-1">
             {{>portalPieChart}}
           </div>
           <div class="col-md-6 col-md-push-2">
@@ -47,27 +47,30 @@
             </div>
           </div>
         </div>
+        {{#if isNextSeerAvailable}}
+        {{>badgeProgress}}
+        {{/if}}
+        <h2>Time taken</h2>
         <div class="row">
           <div class="col-xs-4 text-center">
-            <p>Shortest response</p>
+            <p class="lead">Shortest response</p>
             <p class="mega green">
-              <i class="fa fa-smile-o"></i> {{shortestResponse}}
+              <i class="fa fa-smile-o"></i> {{shortestResponse}} days
             </p>
-            <p>days</p>
           </div>
           <div class="col-xs-4 text-center">
-            <p>Average response</p>
+            <p class="lead">Average response</p>
             <p class="mega">
-              <i class="fa fa-meh-o"></i> {{averageResponse}}
+              <i class="fa fa-meh-o"></i> {{averageResponse}} days
             </p>
-            <p>days</p>
+            <p>({{humanize averageResponse}})</p>
           </div>
           <div class="col-xs-4 text-center">
-            <p>Longest response</p>
+            <p class="lead">Longest response</p>
             <p class="mega red">
-              <i class="fa fa-frown-o"></i> {{longestResponse}}
+              <i class="fa fa-frown-o"></i> {{longestResponse}} days
             </p>
-            <p>days</p>
+            <p class="red">({{humanize longestResponse}})</p>
           </div>
         </div>
       </div>
@@ -78,4 +81,18 @@
 <template name="portalPieChart">
   <canvas id="portalPieChart" height="300" class="center-block">
   </canvas>
+</template>
+
+<template name="badgeProgress">
+{{#with nextSeerBadge}}
+<h2>Seer progress</h2>
+<div class="row">
+  <div class="col-xs-12">
+    <p>{{#unless eq currentLevel 'Before'}}You currently have the {{currentLevel}} Seer medal.{{else}}You have not yet unlocked Seer.{{/unless}} You will need to have {{toNextLevel}} more portal(s) accepted for {{nextLevel}}.</p>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar" aria-valuenow="{{percent}}" aria-min="0" aria-max="100" style="width: {{percent}}%"></div>
+    </div>
+  </div>
+</div>
+{{/with}}
 </template>

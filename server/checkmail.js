@@ -167,7 +167,7 @@ function handle_check_mail(user, token, callback){
 Meteor.methods({
     check_mail: function(){
       console.log('check_mail %s', Meteor.userId());
-            alert_user(Meteor.userId(), 'info', 'Starting Gmail pull, hang on...');
+            alert_user(Meteor.userId(), 'notice', 'Starting Gmail pull, hang on...');
             this.unblock(); // this is mostly a call-backy thingy
             var user = Meteor.user(),
                 keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
@@ -187,14 +187,14 @@ Meteor.methods({
             try {
                 var mail = checkMail(user, token.result);
                 var total = mail.submitted.length + mail.live.length + mail.rejected.length;
-                alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
+                alert_user(Meteor.userId(), 'notice', 'Fetched ' + total + ' messages. ' 
                         + mail.submitted.length + ' submissions, '
                         + mail.live.length + ' live, '
                         + mail.rejected.length + ' rejected. Processing data.');
                 MailProcessor.process(Meteor.userId(), mail);
             } catch (e) {
               console.error(e);
-                alert_user(Meteor.userId(), 'warning', 'Error fetching messages: ' + e.toString());
+                alert_user(Meteor.userId(), 'error', 'Error fetching messages: ' + e.toString());
             }
         } // check_mail
 });

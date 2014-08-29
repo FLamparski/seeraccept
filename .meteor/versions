@@ -6,7 +6,7 @@ aldeed:collection2@0.4.6
 aldeed:simple-schema@0.7.0
 application-configuration@1.0.0
 arunoda:npm@0.2.6
-autoupdate@1.0.4
+autoupdate@1.0.5
 binary-heap@1.0.0
 blaze-tools@1.0.0
 blaze@1.0.3
@@ -18,12 +18,14 @@ ctl-helper@1.0.2
 ctl@1.0.0
 deps@1.0.1
 ejson@1.0.0
+flamparski:moment-locales@0.0.1
+flamparski:moment-timezone@0.0.1
 follower-livedata@1.0.0
 geojson-utils@1.0.0
 google@1.0.0
 html-tools@1.0.0
 htmljs@1.0.0
-http@1.0.2
+http@1.0.3
 id-map@1.0.0
 iron:core@0.3.2
 iron:dynamic-template@0.3.0
@@ -31,7 +33,7 @@ iron:layout@0.3.0
 iron:router@0.9.1
 jquery@1.0.0
 json@1.0.0
-less@1.0.5
+less@1.0.6
 livedata@1.0.7
 localstorage@1.0.0
 logging@1.0.2
