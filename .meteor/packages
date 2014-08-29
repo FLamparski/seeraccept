@@ -14,8 +14,6 @@ iron:router
 less
 bootstrap3-less
 arunoda:npm
-cheerio
-imap
-mailparser
-xoauth2
+meteorhacks:npm
 
+npm-container

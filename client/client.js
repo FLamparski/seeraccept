@@ -47,7 +47,11 @@ Router.map(function() {
       });
     }
   });
-  this.route('dashboard');
+  this.route('dashboard', {
+      onBeforeAction: function (pause){
+        Session.set('pageSubtitle', 'Your Dashboard'); 
+      }
+  });
   this.route('home', {
     path: '/',
     onBeforeAction: function(pause) {
@@ -63,7 +67,11 @@ Router.map(function() {
       }
     }
   });
-  this.route('portals');
+  this.route('portals', {
+    onBeforeAction: function(pause) {
+      Session.set('pageSubtitle', 'Your Submissions');
+    } 
+  });
   this.route('portalDetails', {
     path: 'portal/:portalId',
     onBeforeAction: function(pause) {
@@ -72,6 +80,7 @@ Router.map(function() {
       pause();
     }
   });
+  this.route('help');
 });
 
 Template.header.events({
@@ -146,34 +155,9 @@ Template.portalList.events({
     }
 });
 
-function _percentStatus(what){
-    var n_all = Portals.find({}).count();
-    var n_selected = Portals.find({}).fetch().filter(function(el){
-            return _pstatus(el) === what;
-            }).length;
-    return n_selected / n_all * 100;
-}
 
-Template.barchart.helpers({
-    percentSubmittedCss: function(){
-        return _percentStatus('submitted').toString() + '%';
-    },
-    percentRejectedCss: function(){
-        return _percentStatus('rejected').toString() + '%';
-    },
-    percentLiveCss: function(){
-        return _percentStatus('live').toString() + '%';
-    },
-    percentSubmittedView: function(){
-        return (Math.round(_percentStatus('submitted') * 10) / 10).toString() + '%';
-    },
-    percentRejectedView: function(){
-        return (Math.round(_percentStatus('rejected') * 10) / 10).toString() + '%';
-    },
-    percentLiveView: function(){
-        return (Math.round(_percentStatus('live') * 10) / 10).toString() + '%';
-    },
-});
+
+
 
 function get_current_portal(){
     return Portals.findOne({_id: Session.get("selected_portal")});
@@ -219,39 +203,11 @@ Template.portalDetails.helpers({
     }
 });
 
-function portalResponseTimes(){
-return Portals.find({}).fetch()
-    .filter(function(el){
-        return el.history.length > 1;
-    })
-    .map(function(el){
-        return Math.abs(el.history[0].timestamp - el.history[1].timestamp);
+Template.header.events({
+  'click a.refresh': function (){
+    console.log('click a.refresh');
+    Meteor.call('check_mail', function(){
+      console.log(arguments);
     });
-}
-
-Template.dashboard.helpers({
-    shortestResponse: function(){
-        if (Portals.find({}).count() === 0) return 0;
-        return Math.round(
-            _.min(portalResponseTimes()) / (1000*3600*24));
-    },
-    longestResponse: function(){
-        if (Portals.find({}).count() === 0) return 0;
-        return Math.round(
-            _.max(portalResponseTimes()) / (1000*3600*24));
-    },
-    averageResponse: function(){
-        if (Portals.find({}).count() === 0) return 0;
-        return Math.round(Portals.find({}).fetch()
-            .filter(function(el){
-                return el.history.length > 1;
-            })
-            .map(function(el){
-                return Math.abs(el.history[0].timestamp - el.history[1].timestamp);
-            })
-            .reduce(function(prev, curv){
-                return (prev+curv) / 2;
-            }) / (1000*3600*24));
-    }
+  }
 });
-

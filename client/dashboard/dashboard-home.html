@@ -1,46 +1,81 @@
 <template name="dashboard">
-<div class="row">
-    <div class="col-xs-12">
-        <h2>Your submissions</h2>
-        {{>barchart}}
+  <div class="main">
+    <div class="main-content">
+      <div class="main-content-item col-xs-12">
+        <h2>Submission Dashboard</h2>
+        <hr />
         <div class="row">
-            <div class="col-xs-4">
-                <h4>Shortest response</h4>
-                <p class="lead"><b>{{shortestResponse}}</b> days</p>
+          <div class="col-md-3 col-md-push-2">
+            {{>portalPieChart}}
+          </div>
+          <div class="col-md-6 col-md-push-2">
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <p class="lead">Waiting</p>
+                <p class="mega text-primary">
+                  <i class="fa fa-clock-o"></i> {{countPortals 'submitted'}}
+                </p>
+              </div>
+              <div class="col-xs-6 text-center">
+                <p class="lead">Live</p>
+                <p class="mega green">
+                  <i class="fa fa-check"></i> {{countPortals 'live'}}
+                </p>
+              </div>
             </div>
-            <div class="col-xs-4">
-                <h4>Average time</h4>
-                <p class="lead"><b>{{averageResponse}}</b> days</p>
+            <div class="row">
+              <div class="col-xs-6 text-center">
+                <p class="lead">Rejected</p>
+                <p class="mega red">
+                  <i class="fa fa-times"></i> {{countPortals 'rejected'}}
+                </p>
+              </div>
+              <div class="col-xs-6 text-center">
+                <p class="lead">Duplicates</p>
+                <p class="mega text-warning">
+                  <i class="fa fa-tags"></i> {{countPortals 'duplicate'}}
+                </p>
+              </div>
             </div>
-            <div class="col-xs-4">
-                <h4>Longest response</h4>
-                <p class="lead"><b>{{longestResponse}}</b> days</p>
+            <div class="row">
+              <div class="col-xs-4 col-xs-push-4 text-center">
+                <p class="lead">Total</p>
+                <p class="mega">
+                  <i class="fa fa-upload"></i> {{totalPortals}}
+                </p>
+              </div>
             </div>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-xs-4 text-center">
+            <p>Shortest response</p>
+            <p class="mega green">
+              <i class="fa fa-smile-o"></i> {{shortestResponse}}
+            </p>
+            <p>days</p>
+          </div>
+          <div class="col-xs-4 text-center">
+            <p>Average response</p>
+            <p class="mega">
+              <i class="fa fa-meh-o"></i> {{averageResponse}}
+            </p>
+            <p>days</p>
+          </div>
+          <div class="col-xs-4 text-center">
+            <p>Longest response</p>
+            <p class="mega red">
+              <i class="fa fa-frown-o"></i> {{longestResponse}}
+            </p>
+            <p>days</p>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-xs-12 col-sm-8">
-        <h2>Portal list</h2>
-        {{>portalList}}
-    </div>
-    <div class="col-xs-12 col-sm-4">
-        <h2>Portal details</h2>
-        {{>portalDetails}}
-    </div>
-</div>
+  </div>
 </template>
 
-<template name="barchart">
-<div class="progress">
-    <div class="progress-bar progress-bar-striped" style="width: {{percentSubmitted}}">
-        Sm: {{percentSubmitted}}
-    </div>
-    <div class="progress-bar progress-bar-danger" style="width: {{percentRejected}}">
-        Re: {{percentRejected}}
-    </div> 
-    <div class="progress-bar progress-bar-success" style="width: {{percentLive}}">
-        L: {{percentLive}}
-    </div>
-</div>
+<template name="portalPieChart">
+  <canvas id="portalPieChart" height="300" class="center-block">
+  </canvas>
 </template>

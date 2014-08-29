@@ -1,3 +1,4 @@
+var cheerio = Meteor.npmRequire('cheerio');
 MailProcessor = {};
 
 MailProcessor.process = function(userId, mail){
@@ -24,7 +25,6 @@ MailProcessor.process = function(userId, mail){
                 timestamp: obj.date,
                 what: 'submitted'
             }];
-            console.log(model);
             Portals.insert(model);
         }
     });

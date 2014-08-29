@@ -1,0 +1,31 @@
+{
+  "name": "ipsum",
+  "version": "0.2.1",
+  "homepage": "http://ipsum.filipwieland.com/",
+  "authors": [
+    "Filip Wieland <filiplamparski@gmail.com>"
+  ],
+  "description": "ingress portal submission monitor",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "ingress",
+    "portals",
+    "submissions",
+    "emails",
+    "meteor"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "chartjs": "latest"
+  }
+}

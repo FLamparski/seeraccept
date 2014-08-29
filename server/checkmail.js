@@ -1,5 +1,8 @@
-var inspect = Meteor.require('util').inspect,
-    fs = Meteor.require('fs'),
+var Imap = Meteor.npmRequire('imap'),
+    xoauth2 = Meteor.npmRequire('xoauth2'),
+    MailParser = Meteor.npmRequire('mailparser').MailParser,
+    inspect = Meteor.npmRequire('util').inspect,
+    fs = Meteor.npmRequire('fs'),
     imapState = {'s': 'not-yet', 'l': 'not-yet', 'r': 'not-yet', 'd': 'not-yet'};
 
 // Since we are checking several searches pretty much simultaneously, we need to
@@ -58,6 +61,7 @@ function handle_search_results(type, results, imap, callback){
 }
 
 function handle_check_mail(user, token, callback){
+  console.log('handle_check_mail %s %s', user.services.google.email);
     var mail = {};
     myImap = new Imap({
         user: user.services.google.email,
@@ -152,38 +156,36 @@ function handle_check_mail(user, token, callback){
         console.log("Disconnected from Gmail.");
         callback(null, mail);
     });
-    myImap.connect();
+    try {
+      myImap.connect();
+    } catch (err) {
+      console.log(inspect(err));
+      callback(err);
+    }
 }
 
 Meteor.methods({
     check_mail: function(){
+      console.log('check_mail %s', Meteor.userId());
             alert_user(Meteor.userId(), 'info', 'Starting Gmail pull, hang on...');
-            var Future = Meteor.require('fibers/future');
-            var future = new Future();
             this.unblock(); // this is mostly a call-backy thingy
             var user = Meteor.user(),
                 keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
-                xoauth2obj = XOauth2.createXOAuth2Generator({
+                xoauth2obj = xoauth2.createXOAuth2Generator({
+                    accessToken: user.services.google.accessToken,
                     user: user.services.google.email,
                     clientId: keys.clientId,
                     clientSecret: keys.secret,
                     refreshToken: user.services.google.refreshToken
                 });
-            xoauth2obj.getToken(function(err, token){
-                if(err) {
-                    future.throw(err);
-                    return;
-                }
-                handle_check_mail(user, token, function(err, mail){
-                    if(err){
-                        future.throw(err);
-                    } else {
-                        future.return(mail);
-                    }
-                });
+            console.log("xoauth2 getToken %s", user.services.google.email);
+            var token = Async.runSync(function(done){
+              xoauth2obj.getToken(done);
             }); // getToken
+            console.info(inspect(token.error, {depth: 4, colors: true}));
+            var checkMail = Async.wrap(handle_check_mail);
             try {
-                var mail = future.wait();
+                var mail = checkMail(user, token.result);
                 var total = mail.submitted.length + mail.live.length + mail.rejected.length;
                 alert_user(Meteor.userId(), 'success', 'Fetched ' + total + ' messages. ' 
                         + mail.submitted.length + ' submissions, '
@@ -191,6 +193,7 @@ Meteor.methods({
                         + mail.rejected.length + ' rejected. Processing data.');
                 MailProcessor.process(Meteor.userId(), mail);
             } catch (e) {
+              console.error(e);
                 alert_user(Meteor.userId(), 'warning', 'Error fetching messages: ' + e.toString());
             }
         } // check_mail
