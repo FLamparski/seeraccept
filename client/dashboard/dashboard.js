@@ -1,30 +1,29 @@
-function portalResponseTimes(){
-return Portals.find({}).fetch()
-    .filter(function(el){
-        return el.history.length > 1;
-    })
-    .map(function(el){
-        var sortedHistory = _.sortBy(el.history, 'timestamp');
-        var earliest = moment(_.first(sortedHistory).timestamp);
-        var latest = moment(_.last(sortedHistory).timestamp);
-        return moment.duration(latest.diff(earliest)).asDays();
-    });
+function portalResponseTimes(portals){
+  return portals.filter(function(el){
+      return el.history.length > 1;
+  })
+  .map(function(el){
+      var sortedHistory = _.sortBy(el.history, 'timestamp');
+      var earliest = moment(_.first(sortedHistory).timestamp);
+      var latest = moment(_.last(sortedHistory).timestamp);
+      return moment.duration(latest.diff(earliest)).asDays();
+  });
 }
 
 Template.dashboard.helpers({
     shortestResponse: function(){
-        if (Portals.find({}).count() === 0) return 0;
+        if (Portals.find().count() === 0) return 0;
         return Math.round(
-            _.min(portalResponseTimes()));
+            _.min(portalResponseTimes(Portals.find().fetch())));
     },
     longestResponse: function(){
-        if (Portals.find({}).count() === 0) return 0;
+        if (Portals.find().count() === 0) return 0;
         return Math.round(
-            _.max(portalResponseTimes()));
+            _.max(portalResponseTimes(Portals.find().fetch())));
     },
     averageResponse: function(){
-        if (Portals.find({}).count() === 0) return 0;
-        return Math.round(portalResponseTimes().reduce(function(memo, num) {
+        if (Portals.find().count() === 0) return 0;
+        return Math.round(portalResponseTimes(Portals.find().fetch()).reduce(function(memo, num) {
           if (memo) return (memo + num) / 2;
           else return num; 
         }, null));
@@ -40,6 +39,9 @@ Template.dashboard.helpers({
     },
     isNextSeerAvailable: function() {
       return countPortalsWhichAre('live', Portals.find().fetch()) < 5000;
+    },
+    allReady: function() {
+      return this.allReady;
     }
 });
 
@@ -98,26 +100,25 @@ piechart_data = function(portals) {
     }
   ];
 };
-redrawChart = function () {
+redrawChart = _.debounce(function () {
   var chart = Template.portalPieChart._pieChart;
   var data = piechart_data(Portals.find().fetch());
   data.forEach(function(datum, index) {
     chart.segments[index] = _.extend(chart.segments[index], datum);
   });
   chart.update();
-};
+}, 200);
 Template.portalPieChart.rendered = function(){
+  console.log('portalPieChart rendered');
   var self = this;
-  setTimeout(function() {
-    Template.portalPieChart._chartContext = self.find('#portalPieChart').getContext('2d');
-    Template.portalPieChart._pieChart = new Chart(Template.portalPieChart._chartContext, { animation: false, responsive: true })
-      .Pie(piechart_data(Portals.find().fetch()));
-    self._portalObserver = Portals.find().observeChanges({
-      added: redrawChart,
-      changed: redrawChart,
-      removed: redrawChart
-    });
-  }, 1000);
+  Template.portalPieChart._chartContext = self.find('#portalPieChart').getContext('2d');
+  Template.portalPieChart._pieChart = new Chart(Template.portalPieChart._chartContext, { animation: false, responsive: true })
+    .Pie(piechart_data(Portals.find().fetch()));
+  self._portalObserver = Portals.find().observeChanges({
+    added: redrawChart,
+    changed: redrawChart,
+    removed: redrawChart
+  });
 };
 
 Template.portalPieChart.destroyed = function() {

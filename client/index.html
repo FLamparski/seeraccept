@@ -40,7 +40,7 @@
       {{> header}}
       {{> sidebar}}
     {{/if}}
-    <div class="container-fluid">
+    <div class="container-fluid {{routeClass}}">
       {{>yield}}
     </div>
   </div>
@@ -55,10 +55,12 @@
         </div>
         <ul class="nav">
           <li class="nav-icon"><a href="#" class="refresh"><i class="fa fa-refresh"></i></a></li>
-          <li class="nav-icon"><a href="#"><i class="fa fa-search"></i></a></li>
+          {{#if activeForFragment 'portals'}}
+          <li class="nav-icon"><a href="#" class="portals-filter"><i class="fa fa-search"></i></a></li>
+          {{/if}}
         </ul>
         <ul class="nav pull-right">
-          <li class="hidden-xs"><a href="#">Dashboard</a></li>
+          <li class="{{activeFor 'dashboard'}} hidden-xs"><a href="{{pathFor 'dashboard'}}">Dashboard</a></li>
           <li class="dropdown" id="dropdownOverflowMenu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
             <ul class="dropdown-menu" role="menu">
@@ -67,7 +69,7 @@
               <li><a href="https://github.com/FLamparski/seeraccept/issues" target="blank">Report an issue <i class="fa fa-external-link"></i></a></li>
               <li class="divider"></li>
               <li class="dropdown-header">{{currentUser.profile.nickname}}</li>
-              <li><a href="#">My settings</a></li>
+              <li><a href="{{pathFor 'settings'}}">My settings</a></li>
               <li><a href="{{pathFor 'logout'}}">Sign Out</a></li>
             </ul>
           </li>
@@ -89,14 +91,14 @@
 <div class="sidebar-nav-drawer">
   <h2>Ipsum <img src="/ic_seeraccept.svg" class="pull-right img img-responsive" style="height: 48px" /></h2>
   <h5><i class="fa fa-user"></i> Me</h5>
-  <ul class="nav">
-    <li {{activeFor 'myDashboard'}}><a href="{{pathFor 'dashboard'}}">Dashboard</a></li>
-    <li {{activeFor 'myPortals'}}><a href="/portals/me">My Submissions</a></li>
-    <li {{activeFor 'myProfile'}}><a href="/profile/me">My Profile</a></li>
+  <ul class="nav nav-stacked nav-pills">
+    <li class="{{activeFor 'dashboard'}}"><a href="{{pathFor 'dashboard'}}">Dashboard</a></li>
+    <li class="{{activeFor 'portals/me'}}"><a href="/portals/me">My Submissions</a></li>
+    <li class="{{activeFor 'profile/me'}}"><a href="/profile/me">My Profile</a></li>
   </ul>
   <hr />
   <h5><i class="fa fa-group"></i> My Groups</h5>
-  <ul class="nav">
+  <ul class="nav nav-stacked nav-pills">
     <li><a href="#">Lewisham Enlightened</a></li>
     <li class="divider"></li>
     <li class="text-success"><a href="{{pathFor 'groups'}}/new"><i class="fa fa-plus"></i> New group</a></li>
@@ -104,5 +106,17 @@
   <hr />
   <h5><i class="fa fa-cogs"></i> My Settings</h5>
   <p>TBA</p>
+</div>
+</template>
+
+
+<template name="loadingPage">
+<div class="main">
+  <div class="main-content">
+    <div class="main-content-item col-xs-4 col-xs-push-4 text-center">
+      <p class="mega">Loading</p>
+      <p>{{loadingMessage}}</p>
+    </div>
+  </div>
 </div>
 </template>

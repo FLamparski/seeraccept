@@ -7,11 +7,11 @@ Alerts = new Meteor.Collection('alerts');
 var onlogincb = _.once(function(){
     _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
         Alerts.remove({_id: a._id});
-        Alerts.find({uid: Meteor.userId()}).observe({
-          added: function(alert) {
-            $.growl[alert.atype]({title: alert.type, message: alert.atext, location: 'br'});
-          }
-        });
+    });
+    Alerts.find({uid: Meteor.userId()}).observe({
+      added: function(alert) {
+        $.growl[alert.atype]({title: alert.type, message: alert.atext, location: 'br'});
+      }
     });
     Meteor.call('check_mail', function(){});
 });
@@ -26,7 +26,13 @@ Deps.autorun(function(){
 });
 
 Router.configure({
-  layoutTemplate: 'layout'
+  layoutTemplate: 'layout',
+  loadingTemplate: 'loadingPage',
+  waitOn: function () {
+    return [
+      Meteor.subscribe('alerts')
+    ];
+  }
 });
 Router.onBeforeAction(function(pause){
   if(!Meteor.userId() && !Meteor.loggingIn()){
@@ -48,10 +54,21 @@ Router.map(function() {
   });
   this.route('dashboard', {
       onBeforeAction: function (pause){
+        console.log('/dashboard onBefore');
         Session.set('pageSubtitle', 'Your Dashboard'); 
       },
       waitOn: function() {
+        console.log('/dashboard waitOn');
         return Meteor.subscribe('portals', Meteor.userId());
+      },
+      data: function() {
+        console.log('/dashboard data');
+        if (this.ready()) {
+          console.log('/dashboard data - ready');
+          return {
+            allReady: true
+          };
+        }
       }
   });
   this.route('home', {
@@ -139,29 +156,6 @@ Template.header.events({
         }
     }
 });
-
-function pHistoryPred(a, b){
-    return b.timestamp - a.timestamp;
-}
-
-window._pstatus = function(portal){
-    return portal.history // Get the events for this portal
-        .sort(pHistoryPred)[0].what;
-};
-
-window._portals_statusSortPredicate = function(a, b) {
-    var order = { 'live': 0, 'rejected': 1, 'submitted': 2 },
-        sA = order[_pstatus(a)],
-        sB = order[_pstatus(b)];
-    return sA - sB;
-};
-
-window._portals_ascDateSortPredicate = function(a, b) {
-    var st = function(p) { return o.history.sort(pHistoryPred)[0].timestamp; };
-    return st(b) - st(b);
-};
-
-window._portals_sortPredicate = _portals_statusSortPredicate;
 
 /*Template.portalList.helpers({
     portals: function (){
@@ -264,9 +258,6 @@ Template.header.events({
   }
 });
 
-Template.sidebar.activeFor = function(route){
-  return route === 'myDashboard' ? {class: 'active'} : '';
-};
 
 Template.sidebar.rendered = function() {
   this.$('.sidebar-nav-drawer').drawer('left');
@@ -278,9 +269,52 @@ Template.sidebar.events({
   }
 });
 
+var LOADING_MESSAGES = [
+  "I stole this feature from Slack",
+  "Be careful with high concentrations of XM",
+  "Submit a duck",
+  "Mo portals mo problems"
+];
+Template.loadingPage.helpers({
+  loadingMessage: function() {
+    return LOADING_MESSAGES[_.random(LOADING_MESSAGES.length)];
+  }
+});
+
+/**
+ * Cheap equality operator for Handlebars
+ */
 UI.registerHelper('eq', function(a, b) {
   return a == b;
 });
+/**
+ * Lowercase of str for use in templates
+ */
 UI.registerHelper('downcase', function(str) {
   return str && str.toLowerCase();
+});
+/**
+ * Returns 'active' if the route @route is the current
+ * route. The Fragment version does a regexp for a
+ * more fuzzy match.
+ */
+UI.registerHelper('activeFor', function(route){
+  return (Router.current().path === '/'  + route) ? 'active' : '';
+});
+UI.registerHelper('activeForFragment', function(routeFragment){
+  if (new RegExp(routeFragment, 'i').test(Router.current().path)) {
+    return 'active';
+  } else {
+    return '';
+  }
+});
+/**
+ * Generate a CSS class for the current route.
+ * Does it by removing the leading slash, and
+ * then substituting trailing slashes with spaces,
+ * so routes like /portals/me become
+ * CSS classes 'portals me'.
+ */
+UI.registerHelper('routeClass', function(){
+  return Router.current().path.substring(1).replace('/', ' ');
 });
