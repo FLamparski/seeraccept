@@ -9,8 +9,8 @@
               <th></th>
               <th class="col-sm-6">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></th>
               <th class="col-sm-2">Submitted <a href="#" class="btn {{#if sortBy 'submitted'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="submitted"><i class="fa fa-{{sortState 'submitted'}}"></i></a></th>
-              <th class="hidden-xs col-sm-2">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
-              <th class="hidden-xs col-sm-1"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
+              <th class="col-sm-2">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
+              <th class="col-sm-1"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
             </tr>
           </table>
         </header>
@@ -40,6 +40,35 @@
           </tr>
           {{/each}}
         </table>
+        <footer class="filter-bar hidden">
+          <div class="row">
+            <div class="col-xs-4" data-filter-by="name">
+              <input type="text" class="form-control no-right-radius"
+              placeholder="Filter portals by title..." />
+            </div>
+            <div class="col-xs-7">
+              <div class="btn-group" data-toggle="buttons" data-filter-by="state">
+                <label class="btn btn-success active no-left-radius">
+                  <input type="checkbox" checked data-filter-state="live"> Live
+                </label>
+                <label class="btn btn-danger active">
+                  <input type="checkbox" checked data-filter-state="rejected"> Rejected
+                </label>
+                <label class="btn btn-warning active">
+                  <input type="checkbox" checked data-filter-state="duplicate"> Duplicates
+                </label>
+                <label class="btn btn-info active">
+                  <input type="checkbox" checked data-filter-state="submitted"> Submitted
+                </label>
+              </div>
+            </div>
+            <div class="col-xs-1 text-right">
+              <a href="#" class="btn btn-link text-white" data-close="portal-filters">
+                <i class="fa fa-lg fa-times"></i>
+              </a>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   </div>

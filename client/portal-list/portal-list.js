@@ -1,6 +1,9 @@
+var PORTAL_STATES_ALL = [ 'live', 'rejected', 'duplicate', 'submitted' ];
+
 Template.portals.created = function() {
   Session.set('portalSort', 'title asc');
   Session.set('portalNameFilter', '');
+  Session.set('portalStateFilter', PORTAL_STATES_ALL);
 };
 
 function resizePortalTableHeader(){
@@ -15,23 +18,9 @@ function resizePortalTableHeader(){
   });
 }
 
-function togglePortalFilterBox (evt) {
-  var $this = $(this);
-  if($this.parents('ul').find('input').length) {
-    $this.parents('ul').find('li.app-bar-input').remove();
-    $this.removeClass('active');
-  } else {
-    $this.addClass('active');
-    var $liWithInput = $('<li>').addClass('app-bar-input').addClass('active').appendTo($this.parents('ul'));
-    $('<input>').attr('type', 'text').attr('placeholder', 'Filter portals')
-      .addClass('app-bar-input').width(250).on('click', function(evt){
-        evt.preventDefault();
-        evt.stopPropagation();
-      }).on('keyup', function(evt){
-        Session.set('portalNameFilter', $(this).val());
-      }).appendTo($liWithInput);
-  }
-}
+var toolbarFilterEvents = {
+
+};
 
 Template.portals.rendered = function() {
   this.$('#portalTable > header').affix({
@@ -40,11 +29,6 @@ Template.portals.rendered = function() {
     }
   });
   $(window).on('resize', resizePortalTableHeader);
-  setTimeout(function(){
-    console.log('You can now filter portals.');
-    var $portals_filter = window.$('a.portals-filter');
-    $portals_filter.on('click', togglePortalFilterBox);
-  }, 500);
 };
 
 Template.portals.destroyed = function() {
@@ -98,21 +82,32 @@ Template.portals.helpers({
     }
   },
   portals: function() {
+    // If no portals...
     if (!this.portals) return null;
+    // Always sort by name first
     var thePortals = _.sortBy(this.portals.fetch(), 'name');
     var sort = Session.get('portalSort');
     var sortOn = sort.split(' ')[0];
     var sortDir = sort.split(' ')[1];
+    // Sort on something besides the title
     if (sortOn !== 'title') {
       thePortals = _.sortBy(thePortals, sortPredicates[sortOn]);
     }
+    // Reverse sorting - _.sortBy() sorts ascending
     if (sortDir === 'desc') {
       thePortals = thePortals.reverse();
     }
+    // Filtering - we can do name and state
     var nameFilter = Session.get('portalNameFilter');
-    if (nameFilter.length > 0) {
+    var stateFilter = Session.get('portalStateFilter');
+    if (nameFilter && nameFilter.length > 0) {
       thePortals = _.filter(thePortals, function(portal){
         return new RegExp(nameFilter, 'i').test(portal.name);
+      });
+    }
+    if (stateFilter) {
+      thePortals = _.filter(thePortals, function(portal){
+        return _.contains(stateFilter, portalStatus(portal));
       });
     }
     $('#portalTable > header').trigger('custom.update');
@@ -156,5 +151,20 @@ Template.portals.events({
     Session.set('portalSort', newSort);
   },
   'affix.bs.affix #portalTable > header': resizePortalTableHeader,
-  'custom.update #portalTable > header': resizePortalTableHeader
+  'custom.update #portalTable > header': resizePortalTableHeader,
+  'keyup *[data-filter-by=name] > input': function(evt) {
+    Session.set('portalNameFilter', evt.currentTarget.value);
+  },
+  'change *[data-filter-by=state] input[type=checkbox]': function() {
+    var allowedStates;
+    allowedStates = $('*[data-filter-by=state] input[data-filter-state]')
+      .filter(function() { return this.checked; })
+      .map(function() { return this.dataset.filterState; })
+      .toArray();
+    Session.set('portalStateFilter', allowedStates);
+  },
+  'click a[data-close=portal-filters]': function() {
+    $('.app-bar .portals-filter').toggleClass('active');
+    $('#portalTable .filter-bar').toggleClass('hidden');
+  }
 });

@@ -146,7 +146,7 @@ Router.map(function() {
 });
 
 Template.header.events({
-    "click #checkMail": function (e, tmpl) {
+    "click .refresh": function (e, tmpl) {
         console.log("Check mail start...");
         if(!Meteor.userId()){
             console.error("Not yet logged in.");
@@ -154,6 +154,10 @@ Template.header.events({
         } else {
             Meteor.call('check_mail', function (){});
         }
+    },
+    "click .portals-filter": function (e, tmpl) {
+        $('#portalTable > .filter-bar').toggleClass('hidden');
+        tmpl.$('.portals-filter').toggleClass('active');
     }
 });
 
