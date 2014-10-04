@@ -19,10 +19,10 @@
           <tr class="portal portal-{{portalStatus}} {{isActive _id}}"
               data-portal="{{_id}}">
             <td>
-              <div class="portalimg img img-circle" style="background-image: url({{image}});">Image for {{name}}</div>
+              <div class="portalimg img img-circle" style="background-image: url({{image_url}});">Image for {{title}}</div>
             </td>
             <td class="col-sm-6">
-              {{name}}
+              {{title}}
             </td>
             <td class="col-sm-2">
               {{submissionDate}}
@@ -34,7 +34,7 @@
               {{#if hasReview}}
                 {{daysToReview}} days
               {{else}}
-                <span class="text-muted">not reviewed</span>
+                <span class="text-muted"><i>{{daysToReview}} days waiting</i></span>
               {{/if}}
             </td>
           </tr>

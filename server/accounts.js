@@ -1,4 +1,4 @@
-var inspect = Meteor.require('util').inspect;
+/* global Accounts, Meteor */
 
 Accounts.onCreateUser(function (options, user) {
     var accessToken = user.services.google.accessToken,
