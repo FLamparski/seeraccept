@@ -35,7 +35,9 @@ body.drawer-open {
 
   &.dashboard {
     .main > .main-content {
-      padding-top: 115px;
+      @media (min-width: @screen-md-min) {
+        padding-top: 115px;
+      }
     }
   }
 }
@@ -211,7 +213,7 @@ body.drawer-open {
     padding: 0px 5%;
   }
   @media(max-width: @screen-sm-max){
-    padding: 0px 0px;
+    padding: 0px 16px;
     float: none;
     position: initial;
   }
@@ -247,6 +249,10 @@ table, .table > tbody {
   .ui-label();
   width: 48px;
   height: 48px;
+  @media (max-width: @screen-xs-max) {
+    width: 64px;
+    height: 64px;
+  }
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -267,6 +273,10 @@ table, .table > tbody {
 #portalTable > table tr > td:nth-child(1) {
   max-width: 64px;
   width: 64px !important;
+}
+
+#portalTable > table tr > td.listview {
+  padding: 8px;
 }
 
 .filter-bar {

@@ -35,10 +35,19 @@ h5, h6 {
 p.mega {
   font-size: 64px;
   line-height: 65px;
+  @media (max-width: @screen-xs-max) {
+    font-size: 48px;
+    line-height: 50px;
+  }
+
   font-weight: 200;
   font-family: @headings-font-family;
 }
 
 .text-white {
   color: white;
+}
+
+.text-muted {
+  color: @gray-dark !important;
 }

@@ -9,13 +9,15 @@ Template.portals.created = function() {
 function resizePortalTableHeader(){
   $('#portalTable > header').width($('#portalTable').width())
     .css('top', ($('.app-bar').height() - 10).toString().concat('px'));
-  $('#portalTable > table tr:nth-child(1) > td').each(function(i){
-    if (i === 0) {
-      $('#portalTable > header > table tr').children().eq(i).width(54);
-    } else {
-      $('#portalTable > header > table tr').children().eq(i).width($(this).width());
-    }
-  });
+  if ($('html').width() > 768) {
+    $('#portalTable > table tr:nth-child(1) > td').each(function(i){
+      if (i === 0) {
+        $('#portalTable > header > table tr').children().eq(i).width(54);
+      } else {
+        $('#portalTable > header > table tr').children().eq(i).width($(this).width());
+      }
+    });
+  }
 }
 
 var toolbarFilterEvents = {
