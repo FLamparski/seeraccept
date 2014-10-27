@@ -1,9 +1,5 @@
 console.log("Entering server/publish.js");
 
-Portals = new Meteor.Collection('portals');
-Portals.attachSchema(Schemas.Portal);
-Alerts = new Meteor.Collection('alerts');
-
 
 Meteor.publish('portals', function(who) {
     return Portals.find({submitter: who});
