@@ -1,4 +1,4 @@
-var PORTAL_STATES_ALL = [ 'live', 'rejected', 'duplicate', 'submitted' ];
+var PORTAL_STATES_ALL = _.keys(portalLib.PORTAL_STATE_TABLE);
 
 Template.portals.created = function() {
   Session.set('portalSort', 'title asc');
@@ -35,30 +35,19 @@ Template.portals.destroyed = function() {
   $('.portals-filter').off('click', togglePortalFilterBox);
 };
 
-function portalStatus(portal) {
-  return _.chain(portal.history).sortBy('timestamp').last().value().what;
-}
 function portalTTR(portal) {
-  var sortedHistory = _.chain(portal.history).sortBy('timestamp');
-  var earliest = sortedHistory.first().value().timestamp;
-  var latest = sortedHistory.last().value().timestamp;
-  return moment.duration(moment(latest).diff(moment(earliest))).asDays();
+  var ttr = portalLib.getWaitTime(portal).days;
+  return ttr;
 }
 
 var sortPredicates = {
   'submitted': function(portal) {
-    return _.chain(portal.history).sortBy('timestamp')
-            .findWhere({what: 'submitted'}).value().timestamp;
+    return portalLib.getSubmissionsForPortal(portal).map(function(submission) {
+      return _.sortBy(submission.history, 'timestamp')[0];
+    }).sort()[0];
   },
   'state': function(portal) {
-    var order = {
-      'live': 0,
-      'duplicate': 1,
-      'rejected': 2,
-      'submitted': 3
-    };
-    var state = portalStatus(portal);
-    return _.has(order, state) ? order[state] : 1000;
+    return portalLib.PORTAL_STATE_TABLE[portalLib.getPortalState(portal)];
   },
   'ttr': function(portal) {
     return portalTTR(portal);
@@ -82,10 +71,15 @@ Template.portals.helpers({
     }
   },
   portals: function() {
+    console.log('portals data context start');
+    var portals = this.portals.fetch();
     // If no portals...
-    if (!this.portals) return null;
+    if (!portals.length) {
+      console.log('portals data context terminated');
+      return null;
+    }
     // Always sort by name first
-    var thePortals = _.sortBy(this.portals.fetch(), 'name');
+    var thePortals = _.sortBy(portals, 'name');
     var sort = Session.get('portalSort');
     var sortOn = sort.split(' ')[0];
     var sortDir = sort.split(' ')[1];
@@ -97,6 +91,7 @@ Template.portals.helpers({
     if (sortDir === 'desc') {
       thePortals = thePortals.reverse();
     }
+    console.log('  sort stage exit with %d portals', thePortals.length);
     // Filtering - we can do name and state
     var nameFilter = Session.get('portalNameFilter');
     var stateFilter = Session.get('portalStateFilter');
@@ -107,7 +102,7 @@ Template.portals.helpers({
     }
     if (stateFilter) {
       thePortals = _.filter(thePortals, function(portal){
-        return _.contains(stateFilter, portalStatus(portal));
+        return _.contains(stateFilter, portalLib.getPortalState(portal));
       });
     }
     $('#portalTable > header').trigger('custom.update');
@@ -117,18 +112,20 @@ Template.portals.helpers({
     return Session.get('selectedPortalId') === pid ? 'active' : '';
   },
   submissionDate: function() {
-    return moment(_.chain(this.history).filter(function(event) {
-      return event.what === 'submitted';
-    }).sortBy('timestamp').first().value().timestamp).format('DD MMMM YYYY');
+    var eventDates = portalLib.getSubmissionsForPortal(this).map(function(sub) {
+      return _.pluck(sub.history, 'timestamp');
+    });
+    var subDate = _.flatten(eventDates).sort()[0];
+    return moment(subDate).format('DD MMMM YYYY');
   },
   portalStatus: function() {
-    return portalStatus(this);
+    return portalLib.getPortalState(this);
   },
   hasReview: function() {
-    return this.history.length > 1;
+    return portalLib.getWaitTime(this).conclusive;
   },
   daysToReview: function() {
-    return Math.round(portalTTR(this));
+    return portalTTR(this);
   }
 });
 

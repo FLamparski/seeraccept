@@ -1,10 +1,8 @@
 console.log("Entering client.js");
 
-Portals = new Meteor.Collection('portals');
-Portals.attachSchema(Schemas.Portal);
-Alerts = new Meteor.Collection('alerts');
+var currentUser = null;
 
-var onlogincb = _.once(function(){
+var onlogincb = function(){
     _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
         Alerts.remove({_id: a._id});
     });
@@ -14,15 +12,17 @@ var onlogincb = _.once(function(){
       }
     });
     Meteor.call('check_mail', function(){});
-});
+};
 
 Deps.autorun(function(){
-    if(!Meteor.userId()){
-        $('body').removeClass('app').addClass('landing');
-    } else {
-        $('body').addClass('app').removeClass('landing');
-        onlogincb();
+  if(!Meteor.userId()){
+    $('body').removeClass('app').addClass('landing');
+  } else {
+    if (currentUser != Meteor.userId()) {
+      onlogincb();
+      currentUser = Meteor.userId();
     }
+  }
 });
 
 Router.configure({
@@ -90,13 +90,13 @@ Router.map(function() {
     path: 'portals/:owner',
     onBeforeAction: function(pause) {
       if(this.ready()) {
-        var u;
+        var user = Meteor.users.findOne({_id: this.params.owner});
         if (this.params.owner === 'me') {
           console.log('route: my portals');
           Session.set('screenTitle', 'Your Submissions');
           this.params.owner = Meteor.userId();
-        } else if (u = Meteor.users.findOne({_id: this.params.owner})) {
-          Session.set('screenTitle', u.profile.nickname + '\'s Submissions');
+        } else if (user) {
+          Session.set('screenTitle', user.profile.nickname + '\'s Submissions');
         }
       }
     },
@@ -126,8 +126,7 @@ Router.map(function() {
           console.log('Found user %s for %s', ent.profile.nickname, ent._id);
           ent._type = ent._id === Meteor.userId() ? 'self' : 'other';
         }
-        var portals = Portals.find({submitter: ent._id});
-        console.log('%s has %d portals', ent._id, portals.count());
+        var portals = Portals.find({owner: ent._id});
         return {
           owner: ent,
           portals: portals
@@ -138,7 +137,7 @@ Router.map(function() {
   this.route('portalDetails', {
     path: 'portal/:portalId',
     onBeforeAction: function(pause) {
-      Session.set('portalId', this.params.portalId);
+      Session.set('selectedPortalId', this.params.portalId);
       render('portals');
       pause();
     }
@@ -236,14 +235,6 @@ Template.portalDetails.helpers({
     }
 });
 
-Template.header.events({
-  'click a.refresh': function (){
-    console.log('click a.refresh');
-    Meteor.call('check_mail', function(){
-      console.log(arguments);
-    });
-  }
-});
 
 Template.header.rendered = function(){
   var self = this;

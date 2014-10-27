@@ -7,7 +7,6 @@ standard-app-packages
 accounts-google
 accounts-ui-unstyled
 accounts-base
-collection2
 mrt:chartjs@0.0.6
 aldeed:collection2
 iron:router
@@ -19,4 +18,3 @@ meteorhacks:npm
 npm-container
 flamparski:moment-locales
 flamparski:moment-timezone
-

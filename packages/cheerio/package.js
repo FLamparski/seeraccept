@@ -8,7 +8,6 @@ Npm.depends({
 });
 
 Package.on_use(function(api) {
-  api.imply && api.imply('cheerio', ['server']);
   api.add_files(['cheerio.js'], 'server');
   api.export(['cheerio']);
 });

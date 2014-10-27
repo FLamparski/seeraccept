@@ -14,14 +14,10 @@ Meteor.publish('alerts', function() {
 });
 
 Portals.allow({
-    insert: function(userId, doc) {
-       return userId && doc.submitter === userId;
-    },
-    update: function(userId, doc, f, m){
-        return doc.submitter === userId;
-    },
-    remove: function(userId, doc){
-        return doc.submitter === userId;
+  update: function (userId, currentDoc, fieldNames) {
+    // Don't let them chown if they're not the owner
+    if ( _.contains(fieldNames, 'owner') && currentDoc.owner !== userId) {
+      return false;
     }
 });
 
@@ -29,6 +25,7 @@ Portals.deny({
     update: function (userId, doc, fields, modifier ){
         return _.contains(fields, 'submitter');
     }
+  }
 });
 
 Alerts.allow({
