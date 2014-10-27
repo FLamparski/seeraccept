@@ -1,8 +1,10 @@
 console.log("Entering client.js");
 
-var currentUser = null;
+Portals = new Meteor.Collection('portals');
+Portals.attachSchema(Schemas.Portal);
+Alerts = new Meteor.Collection('alerts');
 
-var onlogincb = function(){
+var onlogincb = _.once(function(){
     _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
         Alerts.remove({_id: a._id});
     });
@@ -12,17 +14,15 @@ var onlogincb = function(){
       }
     });
     Meteor.call('check_mail', function(){});
-};
+});
 
 Deps.autorun(function(){
-  if(!Meteor.userId()){
-    $('body').removeClass('app').addClass('landing');
-  } else {
-    if (currentUser != Meteor.userId()) {
-      onlogincb();
-      currentUser = Meteor.userId();
+    if(!Meteor.userId()){
+        $('body').removeClass('app').addClass('landing');
+    } else {
+        $('body').addClass('app').removeClass('landing');
+        onlogincb();
     }
-  }
 });
 
 Router.configure({
@@ -59,8 +59,7 @@ Router.map(function() {
       },
       waitOn: function() {
         console.log('/dashboard waitOn');
-        return [ Meteor.subscribe('portals', Meteor.userId()),
-                 Meteor.subscribe('submissions', Meteor.userId()) ];
+        return Meteor.subscribe('portals', Meteor.userId());
       },
       data: function() {
         console.log('/dashboard data');
@@ -91,13 +90,13 @@ Router.map(function() {
     path: 'portals/:owner',
     onBeforeAction: function(pause) {
       if(this.ready()) {
-        var user = Meteor.users.findOne({_id: this.params.owner});
+        var u;
         if (this.params.owner === 'me') {
           console.log('route: my portals');
           Session.set('screenTitle', 'Your Submissions');
           this.params.owner = Meteor.userId();
-        } else if (user) {
-          Session.set('screenTitle', user.profile.nickname + '\'s Submissions');
+        } else if (u = Meteor.users.findOne({_id: this.params.owner})) {
+          Session.set('screenTitle', u.profile.nickname + '\'s Submissions');
         }
       }
     },
@@ -109,7 +108,6 @@ Router.map(function() {
       console.log('Will wait for %s\'s portals and users', this.params.owner);
       return [
         Meteor.subscribe('portals', this.params.owner),
-        Meteor.subscribe('submissions', this.params.owner),
         {
           ready: function() {
             var nusers = Meteor.users.find().count();
@@ -128,7 +126,8 @@ Router.map(function() {
           console.log('Found user %s for %s', ent.profile.nickname, ent._id);
           ent._type = ent._id === Meteor.userId() ? 'self' : 'other';
         }
-        var portals = Portals.find({owner: ent._id});
+        var portals = Portals.find({submitter: ent._id});
+        console.log('%s has %d portals', ent._id, portals.count());
         return {
           owner: ent,
           portals: portals
@@ -139,7 +138,7 @@ Router.map(function() {
   this.route('portalDetails', {
     path: 'portal/:portalId',
     onBeforeAction: function(pause) {
-      Session.set('selectedPortalId', this.params.portalId);
+      Session.set('portalId', this.params.portalId);
       render('portals');
       pause();
     }
@@ -197,7 +196,7 @@ function get_current_portal(){
     return Portals.findOne({_id: Session.get("selected_portal")});
 }
 
-/*Template.portalDetails.helpers({
+Template.portalDetails.helpers({
     selected_portal: function(){
         return Session.get("selected_portal");
     },
@@ -235,8 +234,16 @@ function get_current_portal(){
         }
         return text;
     }
-});*/
+});
 
+Template.header.events({
+  'click a.refresh': function (){
+    console.log('click a.refresh');
+    Meteor.call('check_mail', function(){
+      console.log(arguments);
+    });
+  }
+});
 
 Template.header.rendered = function(){
   var self = this;

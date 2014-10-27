@@ -1,19 +1,29 @@
-/* global portalLib, Template, Portals, Submissions, moment, _ */
+function portalResponseTimes(portals){
+  return portals.filter(function(el){
+      return el.history.length > 1;
+  })
+  .map(function(el){
+      var sortedHistory = _.sortBy(el.history, 'timestamp');
+      var earliest = moment(_.first(sortedHistory).timestamp);
+      var latest = moment(_.last(sortedHistory).timestamp);
+      return moment.duration(latest.diff(earliest)).asDays();
+  });
+}
 
 Template.dashboard.helpers({
     shortestResponse: function(){
         if (Portals.find().count() === 0) return 0;
         return Math.round(
-            _.min(portalLib.portalResponseTimes(Portals.find().fetch())));
+            _.min(portalResponseTimes(Portals.find().fetch())));
     },
     longestResponse: function(){
         if (Portals.find().count() === 0) return 0;
         return Math.round(
-            _.max(portalLib.portalResponseTimes(Portals.find().fetch())));
+            _.max(portalResponseTimes(Portals.find().fetch())));
     },
     averageResponse: function(){
         if (Portals.find().count() === 0) return 0;
-        return Math.round(portalLib.portalResponseTimes(Portals.find().fetch()).reduce(function(memo, num) {
+        return Math.round(portalResponseTimes(Portals.find().fetch()).reduce(function(memo, num) {
           if (memo) return (memo + num) / 2;
           else return num; 
         }, null));
@@ -22,41 +32,68 @@ Template.dashboard.helpers({
       return moment.duration(days, 'days').humanize();
     },
     countPortals: function(what) {
-      return portalLib.countPortalsWhichAre(what, Portals.find().fetch());
+      return countPortalsWhichAre(what, Portals.find().fetch());
     },
     totalPortals: function() {
       return Portals.find().count();
     },
     isNextSeerAvailable: function() {
-      return portalLib.countPortalsWhichAre('live', Portals.find().fetch()) < 5000;
+      return countPortalsWhichAre('live', Portals.find().fetch()) < 5000;
     },
     allReady: function() {
       return this.allReady;
     }
 });
 
+function countPortalsWhichAre(what, where){
+  return where.filter(function(portal){
+    return _.last(_.sortBy(portal.history, 'timestamp')).what === what;
+  }).length;
+}
+
+var _depreceated = {
+  percentSubmittedCss: function(){
+    return _percentStatus('submitted').toString() + '%';
+  },
+  percentRejectedCss: function(){
+    return _percentStatus('rejected').toString() + '%';
+  },
+  percentLiveCss: function(){
+    return _percentStatus('live').toString() + '%';
+  },
+  percentSubmittedView: function(){
+    return (Math.round(_percentStatus('submitted') * 10) / 10).toString() + '%';
+  },
+  percentRejectedView: function(){
+    return (Math.round(_percentStatus('rejected') * 10) / 10).toString() + '%';
+  },
+  percentLiveView: function(){
+    return (Math.round(_percentStatus('live') * 10) / 10).toString() + '%';
+  },
+};
+
 piechart_data = function(portals) {
   return [
     {
-      value: portalLib.countPortalsWhichAre('submitted', portals),
+      value: countPortalsWhichAre('submitted', portals),
       label: 'Waiting',
       color: '#004d40',
       highlight: '#00796b'
     },
     {
-      value: portalLib.countPortalsWhichAre('live', portals),
+      value: countPortalsWhichAre('live', portals),
       label: 'Live',
       color: '#0d5302',
       highlight: '#0a7e07'
     },
     {
-      value: portalLib.countPortalsWhichAre('rejected', portals),
+      value: countPortalsWhichAre('rejected', portals),
       label: 'Rejected',
       color: '#b0120a',
       highlight: '#d01716'
     },
     {
-      value: portalLib.countPortalsWhichAre('duplicate', portals),
+      value: countPortalsWhichAre('duplicate', portals),
       label: 'Duplicate',
       color: '#ff6f00',
       highlight: '#ffa000'
@@ -97,7 +134,7 @@ Template.badgeProgress.nextSeerBadge = function() {
     { name: 'Platinum', minimum: 500 },
     { name: 'Black', minimum: 5000 }
   ];
-  var currentCount = portalLib.countPortalsWhichAre('live', Portals.find().fetch());
+  var currentCount = countPortalsWhichAre('live', Portals.find().fetch());
   var currentLevel = _.last(_.filter(levels, function (level) { 
     return level.minimum <= currentCount; 
   }));

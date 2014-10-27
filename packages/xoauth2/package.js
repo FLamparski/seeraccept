@@ -8,6 +8,7 @@ Npm.depends({
 });
 
 Package.on_use(function(api) {
+  api.imply && api.imply('xoauth2', ['server']);
   api.add_files(['xoauth2.js'], 'server');
   api.export(['XOauth2']);
 });

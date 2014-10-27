@@ -1,4 +1,4 @@
-var PORTAL_STATES_ALL = _.keys(portalLib.PORTAL_STATE_TABLE);
+var PORTAL_STATES_ALL = [ 'live', 'rejected', 'duplicate', 'submitted' ];
 
 Template.portals.created = function() {
   Session.set('portalSort', 'title asc');
@@ -35,19 +35,30 @@ Template.portals.destroyed = function() {
   $('.portals-filter').off('click', togglePortalFilterBox);
 };
 
+function portalStatus(portal) {
+  return _.chain(portal.history).sortBy('timestamp').last().value().what;
+}
 function portalTTR(portal) {
-  var ttr = portalLib.getWaitTime(portal).days;
-  return ttr;
+  var sortedHistory = _.chain(portal.history).sortBy('timestamp');
+  var earliest = sortedHistory.first().value().timestamp;
+  var latest = sortedHistory.last().value().timestamp;
+  return moment.duration(moment(latest).diff(moment(earliest))).asDays();
 }
 
 var sortPredicates = {
   'submitted': function(portal) {
-    return portalLib.getSubmissionsForPortal(portal).map(function(submission) {
-      return _.sortBy(submission.history, 'timestamp')[0];
-    }).sort()[0];
+    return _.chain(portal.history).sortBy('timestamp')
+            .findWhere({what: 'submitted'}).value().timestamp;
   },
   'state': function(portal) {
-    return portalLib.PORTAL_STATE_TABLE[portalLib.getPortalState(portal)];
+    var order = {
+      'live': 0,
+      'duplicate': 1,
+      'rejected': 2,
+      'submitted': 3
+    };
+    var state = portalStatus(portal);
+    return _.has(order, state) ? order[state] : 1000;
   },
   'ttr': function(portal) {
     return portalTTR(portal);
@@ -71,15 +82,10 @@ Template.portals.helpers({
     }
   },
   portals: function() {
-    console.log('portals data context start');
-    var portals = this.portals.fetch();
     // If no portals...
-    if (!portals.length) {
-      console.log('portals data context terminated');
-      return null;
-    }
+    if (!this.portals) return null;
     // Always sort by name first
-    var thePortals = _.sortBy(portals, 'title');
+    var thePortals = _.sortBy(this.portals.fetch(), 'name');
     var sort = Session.get('portalSort');
     var sortOn = sort.split(' ')[0];
     var sortDir = sort.split(' ')[1];
@@ -91,22 +97,19 @@ Template.portals.helpers({
     if (sortDir === 'desc') {
       thePortals = thePortals.reverse();
     }
-    console.log('  sort stage exit with %d portals', thePortals.length);
     // Filtering - we can do name and state
     var nameFilter = Session.get('portalNameFilter');
     var stateFilter = Session.get('portalStateFilter');
     if (nameFilter && nameFilter.length > 0) {
       thePortals = _.filter(thePortals, function(portal){
-        return new RegExp(nameFilter, 'i').test(portal.title);
+        return new RegExp(nameFilter, 'i').test(portal.name);
       });
     }
-    console.log('  we have a title filter /%s/i => %d portals', nameFilter, thePortals.length);
-    /*if (stateFilter) {
+    if (stateFilter) {
       thePortals = _.filter(thePortals, function(portal){
-        return _.contains(stateFilter, portalLib.getPortalState(portal));
+        return _.contains(stateFilter, portalStatus(portal));
       });
-    }*/
-    console.log('portals data context end with %d portals', thePortals.length);
+    }
     $('#portalTable > header').trigger('custom.update');
     return thePortals;
   },
@@ -114,20 +117,18 @@ Template.portals.helpers({
     return Session.get('selectedPortalId') === pid ? 'active' : '';
   },
   submissionDate: function() {
-    var eventDates = portalLib.getSubmissionsForPortal(this).map(function(sub) {
-      return _.pluck(sub.history, 'timestamp');
-    });
-    var subDate = _.flatten(eventDates).sort()[0];
-    return moment(subDate).format('DD MMMM YYYY');
+    return moment(_.chain(this.history).filter(function(event) {
+      return event.what === 'submitted';
+    }).sortBy('timestamp').first().value().timestamp).format('DD MMMM YYYY');
   },
   portalStatus: function() {
-    return portalLib.getPortalState(this);
+    return portalStatus(this);
   },
   hasReview: function() {
-    return portalLib.getWaitTime(this).conclusive;
+    return this.history.length > 1;
   },
   daysToReview: function() {
-    return portalTTR(this);
+    return Math.round(portalTTR(this));
   }
 });
 
