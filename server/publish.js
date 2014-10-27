@@ -19,12 +19,12 @@ Portals.allow({
     if ( _.contains(fieldNames, 'owner') && currentDoc.owner !== userId) {
       return false;
     }
+  }
 });
 
 Portals.deny({
-    update: function (userId, doc, fields, modifier ){
-        return _.contains(fields, 'submitter');
-    }
+  update: function (userId, doc, fields, modifier ){
+    return _.contains(fields, 'submitter');
   }
 });
 

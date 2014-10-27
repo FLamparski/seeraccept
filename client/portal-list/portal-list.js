@@ -72,11 +72,11 @@ Template.portals.helpers({
   },
   portals: function() {
     console.log('portals data context start');
-    var portals = this.portals.fetch();
+    var portals = this.fetch();
     // If no portals...
     if (!portals.length) {
       console.log('portals data context terminated');
-      return null;
+      return [];
     }
     // Always sort by name first
     var thePortals = _.sortBy(portals, 'name');

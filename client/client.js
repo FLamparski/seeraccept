@@ -65,9 +65,7 @@ Router.map(function() {
         console.log('/dashboard data');
         if (this.ready()) {
           console.log('/dashboard data - ready');
-          return {
-            allReady: true
-          };
+          return { allReady: true };
         }
       }
   });
@@ -126,11 +124,7 @@ Router.map(function() {
           console.log('Found user %s for %s', ent.profile.nickname, ent._id);
           ent._type = ent._id === Meteor.userId() ? 'self' : 'other';
         }
-        var portals = Portals.find({owner: ent._id});
-        return {
-          owner: ent,
-          portals: portals
-        };
+        return Portals.find({submitter: ent._id});
       }
     } 
   });

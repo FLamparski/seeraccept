@@ -1,38 +1,38 @@
 /* global portalLib, Template, Portals, Submissions, moment, _ */
 
 Template.dashboard.helpers({
-    shortestResponse: function(){
-        if (Portals.find().count() === 0) return 0;
-        return Math.round(
-            _.min(portalLib.portalResponseTimes(Portals.find().fetch())));
-    },
-    longestResponse: function(){
-        if (Portals.find().count() === 0) return 0;
-        return Math.round(
-            _.max(portalLib.portalResponseTimes(Portals.find().fetch())));
-    },
-    averageResponse: function(){
-        if (Portals.find().count() === 0) return 0;
-        return Math.round(portalLib.portalResponseTimes(Portals.find().fetch()).reduce(function(memo, num) {
-          if (memo) return (memo + num) / 2;
-          else return num; 
-        }, null));
-    },
-    humanize: function(days) {
-      return moment.duration(days, 'days').humanize();
-    },
-    countPortals: function(what) {
-      return portalLib.countPortalsWhichAre(what, Portals.find().fetch());
-    },
-    totalPortals: function() {
-      return Portals.find().count();
-    },
-    isNextSeerAvailable: function() {
-      return portalLib.countPortalsWhichAre('live', Portals.find().fetch()) < 5000;
-    },
-    allReady: function() {
-      return this.allReady;
-    }
+  shortestResponse: function(){
+    if (Portals.find().count() === 0) return 0;
+    return Math.round(
+      _.min(portalLib.portalResponseTimes(Portals.find().fetch())));
+  },
+  longestResponse: function(){
+    if (Portals.find().count() === 0) return 0;
+    return Math.round(
+      _.max(portalLib.portalResponseTimes(Portals.find().fetch())));
+  },
+  averageResponse: function(){
+    if (Portals.find().count() === 0) return 0;
+    return Math.round(portalLib.portalResponseTimes(Portals.find().fetch()).reduce(function(memo, num) {
+      if (memo) return (memo + num) / 2;
+      else return num;
+    }, null));
+  },
+  humanize: function(days) {
+    return moment.duration(days, 'days').humanize();
+  },
+  countPortals: function(what) {
+    return portalLib.countPortalsWhichAre(what, Portals.find().fetch());
+  },
+  totalPortals: function() {
+    return Portals.find().count();
+  },
+  isNextSeerAvailable: function() {
+    return portalLib.countPortalsWhichAre('live', Portals.find().fetch()) < 5000;
+  },
+  allReady: function() {
+    return this.allReady;
+  }
 });
 
 piechart_data = function(portals) {
