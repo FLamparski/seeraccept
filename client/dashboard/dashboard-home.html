@@ -18,13 +18,13 @@
               <div class="col-xs-6 text-center">
                 <p class="lead">Waiting</p>
                 <p class="mega text-primary">
-                  <i class="fa fa-clock-o"></i> {{countPortals 'submitted'}}
+                  <i class="fa fa-clock-o"></i> {{countPortals 'submitted'}} <small>({{percentagePortals 'submitted'}}%)</small>
                 </p>
               </div>
               <div class="col-xs-6 text-center">
                 <p class="lead">Live</p>
                 <p class="mega green">
-                  <i class="fa fa-check"></i> {{countPortals 'live'}}
+                  <i class="fa fa-check"></i> {{countPortals 'live'}} <small>({{percentagePortals 'live'}}%)</small>
                 </p>
               </div>
             </div>
@@ -32,13 +32,13 @@
               <div class="col-xs-6 text-center">
                 <p class="lead">Rejected</p>
                 <p class="mega red">
-                  <i class="fa fa-times"></i> {{countPortals 'rejected'}}
+                  <i class="fa fa-times"></i> {{countPortals 'rejected'}} <small>({{percentagePortals 'rejected'}}%)</small>
                 </p>
               </div>
               <div class="col-xs-6 text-center">
                 <p class="lead">Duplicates</p>
                 <p class="mega text-warning">
-                  <i class="fa fa-tags"></i> {{countPortals 'duplicate'}}
+                  <i class="fa fa-tags"></i> {{countPortals 'duplicate'}} <small>({{percentagePortals 'duplicate'}}%)</small>
                 </p>
               </div>
             </div>

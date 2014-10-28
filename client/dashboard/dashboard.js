@@ -24,6 +24,11 @@ Template.dashboard.helpers({
   countPortals: function(what) {
     return portalLib.countPortalsWhichAre(what, Portals.find().fetch());
   },
+  percentagePortals: function(what) {
+    var count = portalLib.countPortalsWhichAre(what, Portals.find().fetch());
+    var total = Portals.find().count();
+    return Math.round(count / total * 1000) / 10;
+  },
   totalPortals: function() {
     return Portals.find().count();
   },
