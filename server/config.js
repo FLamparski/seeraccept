@@ -1,14 +1,14 @@
 Meteor.startup(function (){
 
-Accounts.loginServiceConfiguration.remove({
+  Accounts.loginServiceConfiguration.remove({
     service: "google"
-});
+  });
 
-Accounts.loginServiceConfiguration.insert({
+  Accounts.loginServiceConfiguration.insert({
     service: "google",
     clientId: Meteor.settings.clientId,
     secret: Meteor.settings.secret
-});
+  });
 
 });
 
