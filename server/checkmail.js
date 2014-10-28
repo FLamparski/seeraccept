@@ -166,8 +166,9 @@ function handle_check_mail(user, token, callback){
 
 Meteor.methods({
   check_mail: function(){
-    console.log('check_mail %s', Meteor.userId());
-    alert_user(Meteor.userId(), 'notice', 'Starting Gmail pull, hang on...');
+    check(this.userId, String);
+    console.log('check_mail %s', this.userId);
+    alert_user(this.userId, 'notice', 'Starting Gmail pull, hang on...');
     this.unblock(); // this is mostly a call-backy thingy
     var user = Meteor.user(),
       keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
@@ -181,8 +182,16 @@ Meteor.methods({
     console.log("xoauth2 getToken %s", user.services.google.email);
     var token = Async.runSync(function(done){
       xoauth2obj.getToken(done);
-    }); // getToken
-    console.info(inspect(token.error, {depth: 4, colors: true}));
+    });
+    if (token.error) {
+      console.info(inspect(token.error, {depth: 5, colors: true}));
+      if (/invalid_(request|credentials)/.test(error.toString())) {
+        Meteor.users.update(this.userId, {
+          $set: {'services.resume.loginTokens': []}
+        });
+        return;
+      }
+    }
     var checkMail = Async.wrap(handle_check_mail);
     try {
       var mail = checkMail(user, token.result);
