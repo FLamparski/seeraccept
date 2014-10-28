@@ -14,7 +14,7 @@ var onlogincb = function(){
     Meteor.call('check_mail', function(){});
 };
 
-Deps.autorun(function(){
+Tracker.autorun(function(){
   if(!Meteor.userId()){
     $('body').removeClass('app').addClass('landing');
   } else {
@@ -22,6 +22,26 @@ Deps.autorun(function(){
       onlogincb();
       currentUser = Meteor.userId();
     }
+  }
+});
+
+Tracker.autorun(function(){
+  if(!Meteor.status().connected) {
+    $.growl.warning({title: 'You are offline', message: 'There is no connection to the ipsum server', location: 'br'});
+  } else if (Meteor.status().retryCount > 0) {
+    $.growl.warning({title: 'Connected to Ipsum', message: 'You are connected to the ipsum server in real time', location: 'br'});
+  }
+});
+
+var _old_uid = null;
+Tracker.autorun(function(){
+  var uid = Meteor.userId(), interval;
+  if (uid && uid != _old_uid) {
+    clearInterval(interval);
+    interval = setInterval(function() {
+      Meteor.call('refreshSession');
+    }, 30 * 60 * 1000);
+    _old_uid = uid;
   }
 });
 
