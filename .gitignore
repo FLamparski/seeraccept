@@ -39,3 +39,4 @@ bin/
 *.toc
 /node_modules
 settings-deploy.json
+/build

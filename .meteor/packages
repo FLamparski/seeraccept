@@ -18,3 +18,5 @@ meteorhacks:npm
 npm-container
 flamparski:moment-locales
 flamparski:moment-timezone
+percolatestudio:synced-cron
+
