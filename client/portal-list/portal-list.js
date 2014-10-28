@@ -10,12 +10,8 @@ function resizePortalTableHeader(){
   $('#portalTable > header').width($('#portalTable').width())
     .css('top', ($('.app-bar').height() - 10).toString().concat('px'));
   if ($('html').width() > 768) {
-    $('#portalTable > table tr:nth-child(1) > td').each(function(i){
-      if (i === 0) {
-        $('#portalTable > header > table tr').children().eq(i).width(54);
-      } else {
-        $('#portalTable > header > table tr').children().eq(i).width($(this).width());
-      }
+    $('#portalTable > table tr:nth-child(1) > td:not(.visible-xs)').each(function(i){
+      $('#portalTable > header > table tr').children().eq(i).width($(this).width());
     });
   }
 }
@@ -44,9 +40,7 @@ function portalTTR(portal) {
 
 var sortPredicates = {
   'submitted': function(portal) {
-    return portalLib.getSubmissionsForPortal(portal).map(function(submission) {
-      return _.sortBy(submission.history, 'timestamp')[0];
-    }).sort()[0];
+    return _.findWhere(portal.history, {what: 'submitted'}).timestamp;
   },
   'state': function(portal) {
     return portalLib.PORTAL_STATE_TABLE[portalLib.getPortalState(portal)];
@@ -93,7 +87,6 @@ Template.portals.helpers({
     if (sortDir === 'desc') {
       thePortals = thePortals.reverse();
     }
-    console.log('  sort stage exit with %d portals', thePortals.length);
     // Filtering - we can do name and state
     var nameFilter = Session.get('portalNameFilter');
     var stateFilter = Session.get('portalStateFilter');
@@ -114,10 +107,7 @@ Template.portals.helpers({
     return Session.get('selectedPortalId') === pid ? 'active' : '';
   },
   submissionDate: function() {
-    var eventDates = portalLib.getSubmissionsForPortal(this).map(function(sub) {
-      return _.pluck(sub.history, 'timestamp');
-    });
-    var subDate = _.flatten(eventDates).sort()[0];
+    var subDate = _.findWhere(this.history, {what: 'submitted'}).timestamp;
     return moment(subDate).format('DD MMMM YYYY');
   },
   portalStatus: function() {
