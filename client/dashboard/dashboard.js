@@ -93,24 +93,26 @@ Template.portalPieChart.destroyed = function() {
   this._portalObserver.stop();
 };
 
-Template.badgeProgress.nextSeerBadge = function() {
-  var levels = [
-    { name: 'Before', minimum: 0 },
-    { name: 'Bronze', minimum: 10 },
-    { name: 'Silver', minimum: 50 },
-    { name: 'Gold', minimum: 200 },
-    { name: 'Platinum', minimum: 500 },
-    { name: 'Black', minimum: 5000 }
-  ];
-  var currentCount = portalLib.countPortalsWhichAre('live', Portals.find().fetch());
-  var currentLevel = _.last(_.filter(levels, function (level) { 
-    return level.minimum <= currentCount; 
-  }));
-  var nextLevel = levels[levels.indexOf(currentLevel) + 1];
-  return {
-    currentLevel: currentLevel.name,
-    toNextLevel: nextLevel.minimum - currentCount,
-    nextLevel: nextLevel.name,
-    percent: currentCount / nextLevel.minimum * 100
-  };
-};
+Template.badgeProgress.helpers({
+  nextSeerBadge: function() {
+    var levels = [
+      { name: 'Before', minimum: 0 },
+      { name: 'Bronze', minimum: 10 },
+      { name: 'Silver', minimum: 50 },
+      { name: 'Gold', minimum: 200 },
+      { name: 'Platinum', minimum: 500 },
+      { name: 'Black', minimum: 5000 }
+    ];
+    var currentCount = portalLib.countPortalsWhichAre('live', Portals.find().fetch());
+    var currentLevel = _.last(_.filter(levels, function (level) {
+      return level.minimum <= currentCount;
+    }));
+    var nextLevel = levels[levels.indexOf(currentLevel) + 1];
+    return {
+      currentLevel: currentLevel.name,
+      toNextLevel: nextLevel.minimum - currentCount,
+      nextLevel: nextLevel.name,
+      percent: currentCount / nextLevel.minimum * 100
+    };
+  }
+});
