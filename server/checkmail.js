@@ -63,9 +63,15 @@ function handle_search_results(type, results, imap, callback){
 function handle_check_mail(user, token, callback){
   console.log('handle_check_mail %s', user.services.google.email);
     var mail = {};
+    // Format the access token as specified in the SASL XOAUTH2 document:
+    // https://developers.google.com/gmail/xoauth2_protocol
+    // Previously this was done using the xoauth2 module but that had the
+    // side effect of resetting some tokens which led to credential
+    // failures later on.
+    var _token = new Buffer('user=' + user.services.google.email + '\x01Auth=Bearer ' + token + '\x01\x01').toString('base64');
     myImap = new Imap({
         user: user.services.google.email,
-        xoauth2: token,
+        xoauth2: _token,
         host: 'imap.gmail.com',
         port: 993,
         tls: true,
@@ -164,47 +170,40 @@ function handle_check_mail(user, token, callback){
     }
 }
 
+/* global doCheckMail:true */
+doCheckMail = function (userId) {
+    console.log('check_mail %s', userId);
+    var user = Meteor.users.findOne(userId);
+    if (user.profile.isCheckingMail) {
+      console.log('  already in progress');
+      return;
+    }
+    alert_user(userId, 'notice', 'Ipsum is checking your mail.');
+    Meteor.users.update(userId, {$set: {
+      'profile.isCheckingMail': true
+    }});
+    var checkMail = Async.wrap(handle_check_mail);
+    try {
+      var mail = checkMail(user, user.services.google.accessToken);
+      var total = mail.submitted.length + mail.live.length + mail.rejected.length;
+      alert_user(userId, 'notice', 'Fetched ' + total + ' messages. ' +
+            mail.submitted.length + ' submissions, ' +
+            mail.live.length + ' live, ' +
+            mail.rejected.length + ' rejected.');
+      MailProcessor.process(userId, mail);
+    } catch (e) {
+      console.error(e.stack);
+      alert_user(userId, 'error', 'Error fetching messages: ' + e.toString());
+    }
+    Meteor.users.update(userId, {$unset: {
+      'profile.isCheckingMail': ''
+    }});
+}
 Meteor.methods({
   check_mail: function(){
     check(this.userId, String);
-    console.log('check_mail %s', this.userId);
-    alert_user(this.userId, 'notice', 'Starting Gmail pull, hang on...');
-    this.unblock(); // this is mostly a call-backy thingy
-    var user = Meteor.user(),
-      keys = Accounts.loginServiceConfiguration.findOne({'service': 'google'});
-      xoauth2obj = xoauth2.createXOAuth2Generator({
-        accessToken: user.services.google.accessToken,
-        user: user.services.google.email,
-        clientId: keys.clientId,
-        clientSecret: keys.secret,
-        refreshToken: user.services.google.refreshToken
-      });
-    console.log("xoauth2 getToken %s", user.services.google.email);
-    var token = Async.runSync(function(done){
-      xoauth2obj.getToken(done);
-    });
-    if (token.error) {
-      console.info(inspect(token.error, {depth: 5, colors: true}));
-      if (/invalid_(request|credentials)/.test(error.toString())) {
-        Meteor.users.update(this.userId, {
-          $set: {'services.resume.loginTokens': []}
-        });
-        return;
-      }
-    }
-    var checkMail = Async.wrap(handle_check_mail);
-    try {
-      var mail = checkMail(user, token.result);
-      var total = mail.submitted.length + mail.live.length + mail.rejected.length;
-      alert_user(Meteor.userId(), 'notice', 'Fetched ' + total + ' messages. ' +
-            mail.submitted.length + ' submissions, ' +
-            mail.live.length + ' live, ' +
-            mail.rejected.length + ' rejected. Processing data.');
-      MailProcessor.process(Meteor.userId(), mail);
-    } catch (e) {
-      console.error(e.stack);
-      alert_user(Meteor.userId(), 'error', 'Error fetching messages: ' + e.toString());
-    }
+    this.unblock();
+    doCheckMail(this.userId);
   } // check_mail
 });
 
