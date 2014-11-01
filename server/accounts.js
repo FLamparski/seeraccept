@@ -1,4 +1,4 @@
-/* global Accounts, Meteor, _, SyncedCron */
+/* global Accounts, Meteor, Alerts, check, HTTP, SyncedCron, doCheckMail */
 
 Accounts.onCreateUser(function (options, user) {
     var accessToken = user.services.google.accessToken,
@@ -33,19 +33,36 @@ Accounts.onCreateUser(function (options, user) {
     return user;
 });
 
+Accounts.onLogin(function (loginInfo) {
+  console.log('login', loginInfo.user.services.google.email, loginInfo.type);
+  Meteor.setTimeout(function() {
+    doCheckMail(loginInfo.user._id);
+  }, 0); // unblock the onLogin callback so that the user can get in
+});
+
+function logoutExpired() {
+  var query = {
+    'services.google.expiresAt': {$lt: Date.now()}
+  };
+  // clear alerts for users being logged out
+  Meteor.users.find(query).map(function(user) {
+    Alerts.remove({uid: user._id});
+  });
+  return Meteor.users.update(query, {
+    $set: {'services.resume.loginTokens': []}
+  }, {
+    multi: true
+  });
+}
+
 SyncedCron.add({
   name: 'Log out users with expired tokens',
   schedule: function (parser) {
-    return parser.text('every 1 hour');
+    return parser.text('every 45 minutes');
   },
   job: function () {
-    Meteor.users.find({'services.google.expiresAt': {$lt: new Date()}})
-      .map(function(user) {
-        console.log('logging out', user._id, user.profile.nickname);
-        Meteor.users.update(user._id, {
-          $set: {'services.resume.loginTokens': []}
-        });
-      });
+    var rowsAffected = logoutExpired();
+    return "Logged out " + rowsAffected + " user(s).";
   }
 });
 
@@ -53,12 +70,15 @@ Meteor.startup(function() {
   SyncedCron.start({
     utc: true
   });
+  var rowsAffected = logoutExpired();
+  console.log('Cleaining old sessions: logged out', rowsAffected, 'users');
 });
 
 Meteor.methods({
   refreshSession: function() {
     check(this.userId, String);
     var user = Meteor.users.findOne(this.userId);
+    console.log('refreshSession', user._id);
     HTTP.post('https://accounts.google.com/o/oauth2/token', {
         params: {
           refresh_token: user.services.google.refreshToken,
@@ -70,12 +90,14 @@ Meteor.methods({
       if (error) {
         console.error(error);
       } else {
-        Meteor.users.update(user._id, {
+        console.log(' << token expires in', result.data.expires_in);
+        var rowsAffected = Meteor.users.update(user._id, {
           $set: {
            'services.google.accessToken': result.data.access_token,
-           'services.google.expiresAt': Date.now() + result.data.expires_in
+           'services.google.expiresAt': Date.now() + result.data.expires_in * 1000 // expiresAt is in ms, expires_in is in seconds.
           }
         });
+        console.log('updated', rowsAffected, 'user(s)');
       }
     });
   }
