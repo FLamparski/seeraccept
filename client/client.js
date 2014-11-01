@@ -62,10 +62,11 @@ Router.configure({
     ];
   }
 });
-Router.onBeforeAction(function(pause){
+Router.onBeforeAction(function(){
   if(!Meteor.userId() && !Meteor.loggingIn()){
     this.render('login');
-    pause();
+  } else {
+    this.next();
   }
 }, {except: ['home', 'shared', 'logout', 'help']});
 Router.map(function() {
@@ -81,9 +82,10 @@ Router.map(function() {
     }
   });
   this.route('dashboard', {
-      onBeforeAction: function (pause){
+      onBeforeAction: function (){
         console.log('/dashboard onBefore');
         Session.set('pageSubtitle', 'Your Dashboard'); 
+        this.next();
       },
       waitOn: function() {
         console.log('/dashboard waitOn');
@@ -102,19 +104,17 @@ Router.map(function() {
     onBeforeAction: function(pause) {
       if (Meteor.loggingIn()) {
         this.render('spincover');
-        pause();
       } else if (Meteor.userId()) {
         Router.go('dashboard');
-        pause();
+        this.next();
       } else {
         this.render('login');
-        pause();
       }
     }
   });
   this.route('portals', {
     path: 'portals/:owner',
-    onBeforeAction: function(pause) {
+    onBeforeAction: function() {
       if(this.ready()) {
         var user = Meteor.users.findOne({_id: this.params.owner});
         if (this.params.owner === 'me') {
@@ -124,6 +124,7 @@ Router.map(function() {
         } else if (user) {
           Session.set('screenTitle', user.profile.nickname + '\'s Submissions');
         }
+        this.next();
       }
     },
     waitOn: function() {
@@ -158,10 +159,9 @@ Router.map(function() {
   });
   this.route('portalDetails', {
     path: 'portal/:portalId',
-    onBeforeAction: function(pause) {
+    onBeforeAction: function() {
       Session.set('selectedPortalId', this.params.portalId);
-      render('portals');
-      pause();
+      this.render('portals');
     }
   });
 });
