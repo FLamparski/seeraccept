@@ -6,8 +6,6 @@
   left: 0px;
   z-index: 50; // above regular content but behind the app bar
   height: 100%;
-  padding-left: 10px;
-  padding-right: 8px;
   .ui-label();
   @media (min-width: 0px) and (max-width: @screen-xs-max) {
     min-width: 200px;
@@ -28,4 +26,24 @@
   }
   background-color: white;
   box-shadow: 4px 0px 10px rgba(0, 0, 0, 0.3);
+
+  h2, h5 {
+    padding-left: 18px;
+    padding-right: 8px;
+  }
+  h2 {
+    margin-bottom: 32px;
+  }
+  h5 {
+    margin-top: 24px;
+  }
+
+  .nav-pills > li, .nav-pills > li > a {
+    border-radius: 0px;
+
+    > i.fa {
+      margin-right: 24px;
+      margin-left: 10px;
+    }
+  }
 }
