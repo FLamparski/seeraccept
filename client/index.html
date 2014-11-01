@@ -92,22 +92,16 @@
 <template name="sidebar">
 <div class="sidebar-nav-drawer">
   <h2>Ipsum <img src="/ic_seeraccept.svg" class="pull-right img img-responsive" style="height: 48px" /></h2>
-  <h5><i class="fa fa-user"></i> Me</h5>
+  <hr />
   <ul class="nav nav-stacked nav-pills">
-    <li class="{{activeFor 'dashboard'}}"><a href="{{pathFor 'dashboard'}}">Dashboard</a></li>
-    <li class="{{activeFor 'portals/me'}}"><a href="/portals/me">My Submissions</a></li>
-    <li class="{{activeFor 'profile/me'}}"><a href="/profile/me">My Profile</a></li>
+    <li class="{{activeForFragment 'dashboard'}}"><a href="{{pathFor 'dashboard'}}"><i class="fa fa-fw fa-tachometer"></i>Dashboard</a></li>
+    <li class="{{activeForFragment 'portals/me'}}"><a href="/portals/me"><i class="fa fa-fw fa-database"></i>My Submissions</a></li>
+    <li class="{{activeForFragment 'settings'}} disabled"><a href="{{pathFor 'settings'}}" title="Coming soon"><i class="fa fa-cogs"></i> My Settings</a></li>
   </ul>
   <hr />
-  <h5><i class="fa fa-group"></i> My Groups</h5>
-  <ul class="nav nav-stacked nav-pills">
-    <li><a href="#">Lewisham Enlightened</a></li>
-    <li class="divider"></li>
-    <li class="text-success"><a href="{{pathFor 'groups'}}/new"><i class="fa fa-plus"></i> New group</a></li>
-  </ul>
-  <hr />
-  <h5><i class="fa fa-cogs"></i> My Settings</h5>
-  <p>TBA</p>
+  <div class="status text-center">
+    <small>Ipsum 0.2.3 beta<br />{{Meteor.release}}<br />{{#if Meteor.status.connected}}online{{else}}offline{{/if}}</small>
+  </div>
 </div>
 </template>
 
