@@ -2,16 +2,18 @@ console.log("Entering client.js");
 
 var currentUser = null;
 
+Tracker.autorun(function() {
+  activeAlertObserver = Alerts.find({uid: Meteor.userId()}).observe({
+    added: function(alert) {
+      $.growl[alert.atype]({title: alert.type, message: alert.atext, location: 'br'});
+    }
+  });
+});
+
 var onlogincb = function(){
     _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
         Alerts.remove({_id: a._id});
     });
-    Alerts.find({uid: Meteor.userId()}).observe({
-      added: function(alert) {
-        $.growl[alert.atype]({title: alert.type, message: alert.atext, location: 'br'});
-      }
-    });
-    Meteor.call('check_mail', function(){});
 };
 
 Tracker.autorun(function(){
