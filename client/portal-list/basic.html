@@ -9,8 +9,8 @@
               <th class="hidden-xs"></th>
               <th class="col-sm-6">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></th>
               <th class="col-sm-2">Submitted <a href="#" class="btn {{#if sortBy 'submitted'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="submitted"><i class="fa fa-{{sortState 'submitted'}}"></i></a></th>
-              <th class="col-sm-2">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
-              <th class="col-sm-1"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
+              <th class="col-sm-1">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
+              <th class="col-sm-2"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
             </tr>
           </table>
         </header>
@@ -18,7 +18,7 @@
           {{#each portals}}
           <tr class="portal portal-{{portalStatus}} {{isActive _id}}"
               data-portal="{{_id}}">
-            <td>
+            <td class="portalimg">
               <div class="portalimg img img-circle" style="background-image: url({{image}});">Image for {{name}}</div>
             </td>
             <td class="col-xs-10 visible-xs listview">
@@ -31,10 +31,10 @@
             <td class="col-sm-2 hidden-xs">
               {{submissionDate}}
             </td>
-            <td class="col-sm-2 hidden-xs">
+            <td class="col-sm-1 hidden-xs">
               {{portalStatus}}
             </td>
-            <td class="col-sm-1 hidden-xs">
+            <td class="col-sm-2 hidden-xs">
               {{#if hasReview}}
                 {{daysToReview}} days
               {{else}}
