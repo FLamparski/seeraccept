@@ -48,7 +48,7 @@
 
 <template name="header">
     <div class="container-fluid">
-      <div class="app-bar">
+      <div class="app-bar {{#unless status.connected}}offline{{/unless}}">
         <div class="header">
           <a class="ipsum-logo drawer-toggle" data-target=".nav-drawer" href="#"><i class="fa fa-lg fa-navicon"></i></a>
           <h1>Your Submissions</h1>
