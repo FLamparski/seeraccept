@@ -1,6 +1,8 @@
 var cheerio = Meteor.npmRequire('cheerio');
 MailProcessor = {};
 
+var INSECURE_HTTP = /^http:/;
+
 MailProcessor.process = function(userId, mail){
     /*
      * Mail comes in 4 types: submitted, rejected, dupe, and live.
@@ -11,12 +13,16 @@ MailProcessor.process = function(userId, mail){
      */
     console.log(userId + ' checkMail: Processing ' + mail.submitted.length + ' submissions');
     mail.submitted.map(function(msg){
-        return {
-            'submitter': userId,
-            'name': msg.subject.slice(26), //skips "Ingress Portal Submitted: "
-            'image': cheerio.load(msg.html)('img').attr('src'),
-            'date': msg.date
-        };
+      var imageUrl = cheerio.load(msg.html)('img').attr('src');
+      if (INSECURE_HTTP.test(imageUrl)) {
+        imageUrl = imageUrl.replace(INSECURE_HTTP, 'https:');
+      }
+      return {
+        'submitter': userId,
+        'name': msg.subject.slice(26), //skips "Ingress Portal Submitted: "
+        'image': imageUrl,
+        'date': msg.date
+      };
     }).forEach(function(obj){
         if(Portals.find({'$and': [{'image': obj.image},
             {'submitter': obj.submitter}]}).count() === 0){
@@ -30,11 +36,19 @@ MailProcessor.process = function(userId, mail){
     });
     mail.live.map(function(msg){
         var $ = cheerio.load(msg.html);
+        var imageUrl = $('img').attr('src');
+        var intelUrl = $('a[href*="ingress.com/intel"]').attr('href');
+        if (INSECURE_HTTP.test(imageUrl)) {
+          imageUrl = imageUrl.replace(INSECURE_HTTP, 'https:');
+        }
+        if (INSECURE_HTTP.test(intelUrl)) {
+          intelUrl = intelUrl.replace(INSECURE_HTTP, 'https:');
+        }
         return {
             'submitter': userId,
             'title': msg.subject.slice(21), //skips "Ingress Portal Live: "
-            'imageUrl': $('img').attr('src'),
-            'intel': $('a[href*="ingress.com/intel"]').attr('href'),
+            'imageUrl': imageUrl,
+            'intel': intelUrl,
             'date': msg.date
         };
     }).forEach(function(obj){
@@ -48,25 +62,33 @@ MailProcessor.process = function(userId, mail){
         );
     });
     mail.rejected.map(function(msg){
-        return {
-            'submitter': userId,
-            'title': msg.subject.slice(25), //skips "Ingress Portal Rejected: "
-            'imageUrl': cheerio.load(msg.html)('img').attr('src'),
-            'date': msg.date
-        };
+      var imageUrl = cheerio.load(msg.html)('img').attr('src');
+      if (INSECURE_HTTP.test(imageUrl)) {
+        imageUrl = imageUrl.replace(INSECURE_HTTP, 'https:');
+      }
+      return {
+        'submitter': userId,
+        'title': msg.subject.slice(25), //skips "Ingress Portal Rejected: "
+        'imageUrl': imageUrl,
+        'date': msg.date
+      };
     }).forEach(function(obj){
-        Portals.update(
-            {$and: [{'image': obj.imageUrl}, {'submitter': obj.submitter}]},
-            {
-            $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'rejected' }}
-            }
-        );
+      Portals.update(
+        {$and: [{'image': obj.imageUrl}, {'submitter': obj.submitter}]},
+        {
+        $addToSet: { 'history': { 'timestamp': obj.date, 'what': 'rejected' }}
+        }
+      );
     });
     mail.duplicates.map(function(msg){
+      var imageUrl = cheerio.load(msg.html)('img').attr('src');
+      if (INSECURE_HTTP.test(imageUrl)) {
+        imageUrl = imageUrl.replace(INSECURE_HTTP, 'https:');
+      }
       return {
         'submitter': userId,
         'title': msg.subject.slice(26), //skips "Ingress Portal Duplicate: "
-        'imageUrl': cheerio.load(msg.html)('img').attr('src'),
+        'imageUrl': imageUrl,
         'date': msg.date
       };
     }).forEach(function(obj){
