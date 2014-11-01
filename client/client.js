@@ -27,11 +27,17 @@ Tracker.autorun(function(){
   }
 });
 
+var conntectedState = Meteor.status().connected;
+
 Tracker.autorun(function(){
-  if(!Meteor.status().connected) {
-    $.growl.warning({title: 'You are offline', message: 'There is no connection to the ipsum server', location: 'br'});
-  } else if (Meteor.status().retryCount > 0) {
-    $.growl.warning({title: 'Connected to Ipsum', message: 'You are connected to the ipsum server in real time', location: 'br'});
+  var status = Meteor.status();
+  if (status.connected !== conntectedState) {
+    if (!status.connected) {
+      $.growl.warning({title: 'You are offline', message: 'There is no connection to the ipsum server', location: 'br'});
+    } else {
+      $.growl.notice({title: 'Connected to Ipsum', message: 'You are connected to the ipsum server in real time', location: 'br'});
+    }
+    conntectedState = status.connected;
   }
 });
 
@@ -252,27 +258,16 @@ Template.portalDetails.helpers({
 });
 
 
-Template.header.rendered = function(){
-  var self = this;
-  var oldPos = self.$('.dropdown-menu').offset();
-  var myWidth = self.$('.dropdown-menu').outerWidth();
-  var activatorWidth = self.$('.dropdown-toggle').outerWidth();
-  var newPos = { top: oldPos.top, left: activatorWidth - myWidth };
-  console.log('Moving the dropdown menu from (%d, %d) to (%d, %d)', oldPos.left,
-      oldPos.top, newPos.left, newPos.top);
-  self.$('.dropdown-menu').offset(newPos);
-};
-
-Template.header.events({
-  'click .drawer-toggle': function(tpl, e) {
-    $('.sidebar-nav-drawer').drawer('toggle', 150);
-  }
-});
-
 
 Template.sidebar.rendered = function() {
   this.$('.sidebar-nav-drawer').drawer('left');
 };
+
+Template.sidebar.helpers({
+  Meteor: function() {
+    return Meteor
+  }
+});
 
 Template.sidebar.events({
   'click a': function() {
@@ -281,10 +276,11 @@ Template.sidebar.events({
 });
 
 var LOADING_MESSAGES = [
-  "I stole this feature from Slack",
+  "It's a fine day to submit a portal",
   "Be careful with high concentrations of XM",
   "Submit a duck",
-  "Mo portals mo problems"
+  "Mo portals mo problems",
+  "Remember not to submit military installations"
 ];
 Template.loadingPage.helpers({
   loadingMessage: function() {
@@ -295,13 +291,13 @@ Template.loadingPage.helpers({
 /**
  * Cheap equality operator for Handlebars
  */
-UI.registerHelper('eq', function(a, b) {
+Template.registerHelper('eq', function(a, b) {
   return a == b;
 });
 /**
  * Lowercase of str for use in templates
  */
-UI.registerHelper('downcase', function(str) {
+Template.registerHelper('downcase', function(str) {
   return str && str.toLowerCase();
 });
 /**
@@ -309,11 +305,11 @@ UI.registerHelper('downcase', function(str) {
  * route. The Fragment version does a regexp for a
  * more fuzzy match.
  */
-UI.registerHelper('activeFor', function(route){
-  return (Router.current().path === '/'  + route) ? 'active' : '';
+Template.registerHelper('activeFor', function(route){
+  return (Router.current().url === '/'  + route) ? 'active' : '';
 });
-UI.registerHelper('activeForFragment', function(routeFragment){
-  if (new RegExp(routeFragment, 'i').test(Router.current().path)) {
+Template.registerHelper('activeForFragment', function(routeFragment){
+  if (new RegExp(routeFragment, 'i').test(Router.current().url)) {
     return 'active';
   } else {
     return '';
@@ -326,6 +322,6 @@ UI.registerHelper('activeForFragment', function(routeFragment){
  * so routes like /portals/me become
  * CSS classes 'portals me'.
  */
-UI.registerHelper('routeClass', function(){
-  return Router.current().path.substring(1).replace('/', ' ');
+Template.registerHelper('routeClass', function(){
+  return Router.current().url.substring(1).replace('/', ' ');
 });
