@@ -4,46 +4,62 @@
     <div class="main-content-item col-xs-12">
       <div id="portalTable">
         <header>
-          <table class="table table-condensed">
-            <tr>
-              <th class="hidden-xs"></th>
-              <th class="col-sm-6">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></th>
+          <!-- <table class="table table-condensed">
+            <tr class="flex-row">
+              <th class="hidden-xs flex-sm-25"></th>
+              <th class="flex-sm-6">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></th>
               <th class="col-sm-2">Submitted <a href="#" class="btn {{#if sortBy 'submitted'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="submitted"><i class="fa fa-{{sortState 'submitted'}}"></i></a></th>
               <th class="col-sm-1">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
               <th class="col-sm-2"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
             </tr>
-          </table>
+            </table> -->
+          <div class="sort-header">
+            <div class="hidden-xs pad-out-image"></div>
+            <div class="sort-title">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></div>
+            <div class="sort-submitted-date">Submitted <a href="#" class="btn {{#if sortBy 'submitted'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="submitted"><i class="fa fa-{{sortState 'submitted'}}"></i></a></div>
+            <div class="sort-state">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></div>
+            <div class="sort-ttr"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></div>
+          </div>
         </header>
-        <table class="table table-hover">
+        <div class="portal-list">
           {{#each portals}}
-          <tr class="portal portal-{{portalStatus}} {{isActive _id}}"
-              data-portal="{{_id}}">
-            <td class="portalimg">
-              <div class="portalimg img img-circle" style="background-image: url({{image}});">Image for {{name}}</div>
-            </td>
-            <td class="col-xs-10 visible-xs listview">
-              <p><strong>{{name}}</strong><span class="pull-right">{{portalStatus}}</span></p>
-              <p>Submitted on {{submissionDate}}<br />{{#if hasReview}}Took {{daysToReview}} days to review{{else}}<span class="text-muted"><i>{{daysToReview}} days waiting</i></span>{{/if}}</p>
-            </td>
-            <td class="col-sm-6 hidden-xs">
-              {{name}}
-            </td>
-            <td class="col-sm-2 hidden-xs">
-              {{submissionDate}}
-            </td>
-            <td class="col-sm-1 hidden-xs">
-              {{portalStatus}}
-            </td>
-            <td class="col-sm-2 hidden-xs">
-              {{#if hasReview}}
-                {{daysToReview}} days
-              {{else}}
-                <span class="text-muted"><i>{{daysToReview}} days waiting</i></span>
-              {{/if}}
-            </td>
-          </tr>
+          <div class="portal-row {{downcase portalStatus}}">
+            <div class="portal-item">
+              <div class="portal-thumbnail" style="background-image: url({{image}});">
+                Portal image for {{name}}
+              </div>
+              <div class="portal-text tablet-up">
+                <div class="title">
+                  <strong>{{name}}</strong>
+                </div>
+                <div class="submitted-date">
+                  {{submissionDate}}
+                </div>
+                <div class="status">
+                  {{portalStatus}}
+                </div>
+                <div class="ttr {{#if hasReview}}conclusive{{else}}inconclusive{{/if}}">
+                  {{daysToReview}} days{{#unless hasReview}} waiting{{/unless}}
+                </div>
+              </div>
+              <div class="portal-text mobile">
+                <div class="status pull-right">
+                  {{portalStatus}}
+                </div>
+                <div class="title">
+                  <strong>{{name}}</strong>
+                </div>
+                <div class="submitted-date">
+                  Submitted on {{submissionDate}}
+                </div>
+                <div class="ttr {{#if hasReview}}conclusive{{else}}inconclusive{{/if}}">
+                  Time {{#if hasReview}}to review{{else}}in queue{{/if}}: {{daysToReview}} days
+                </div>
+              </div>
+            </div>
+          </div>
           {{/each}}
-        </table>
+        </div>
         <footer class="filter-bar hidden">
           <div class="row">
             <div class="col-xs-4" data-filter-by="name">

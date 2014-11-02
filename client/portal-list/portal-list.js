@@ -1,3 +1,5 @@
+/* global Session, Template, _, $, togglePortalFilterBox, portalLib, moment */
+
 var PORTAL_STATES_ALL = _.keys(portalLib.PORTAL_STATE_TABLE);
 
 Template.portals.created = function() {
@@ -15,10 +17,6 @@ function resizePortalTableHeader(){
     });
   }
 }
-
-var toolbarFilterEvents = {
-
-};
 
 Template.portals.rendered = function() {
   this.$('#portalTable > header').affix({
@@ -155,5 +153,9 @@ Template.portals.events({
   'click a[data-close=portal-filters]': function() {
     $('.app-bar .portals-filter').toggleClass('active');
     $('#portalTable .filter-bar').toggleClass('hidden');
+  },
+  'click div.portal-item': function(evt) {
+    $(evt.currentTarget.parentElement).toggleClass('active');
+    console.log('click portal', this._id);
   }
 });

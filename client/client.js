@@ -320,6 +320,12 @@ Template.registerHelper('downcase', function(str) {
   return str && str.toLowerCase();
 });
 /**
+ * Sentence case: capitalise the first letter
+ */
+Template.registerHelper('sentenceCase', function(str) {
+  return str && str[0].toUpperCase() + str.slice(1);
+});
+/**
  * Returns 'active' if the route @route is the current
  * route. The Fragment version does a regexp for a
  * more fuzzy match.
