@@ -47,18 +47,52 @@ body.drawer-open {
   background-size: cover; 
 
   .centering.cover {
-    .center-block();
-    margin-top: 100px;
-    width: 50%;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 24px;
+
     .jumbotron {
       border-radius: 5px;
       background-color: fade(@gray-lighter, 90%);
       box-shadow: 0px 2px 3px fade(@gray-light, 90%);
+      @media (max-width: @screen-xs-max) {
+        width: 100%;
+        padding: 15px;
+        
+        p {
+          font-size: 16px;
+        }
+        p.lead {
+          font-size: 18px;
+        }
+
+        .btn {
+          .btn-block();
+        }
+      }
+      @media (min-width: @screen-sm-min) and (max-width: @screen-md-max) {
+        width: 80%;
+      }
+      @media (max-width: @screen-sm-max) {
+        text-align: center;
+      }
+      @media (min-width: @screen-lg-min) {
+        width: 50%;
+      }
 
       .ic_seeraccept {
         .img-responsive();
-        .pull-right();
-        width: 128px;
+        @media (max-width: @screen-sm-max) {
+          .center-block();
+          width: 144px;
+        }
+        @media (min-width: @screen-md-min) {
+          .pull-right();
+          width: 128px;
+        }
       }
     }
   }
@@ -267,7 +301,7 @@ table, .table > tbody {
   background-color: @gray-lighter;
   top: 110px;
   padding-top: 10px;
-  box-shadow: 0px 4px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3);
 }
 
 #portalTable > table tr > td:nth-child(1) {
@@ -367,4 +401,5 @@ input.form-control {
 }
 
 @import 'navdrawer.import.less';
+@import 'portal-list.import.less';
 @import 'portalinfo.import.less';

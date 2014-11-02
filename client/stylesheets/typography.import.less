@@ -24,7 +24,7 @@
 @headings-font-family: 'Roboto-Light', @font-family-sans-serif;
 @headings-font-weight: 100;
 
-@font-size-base: 16px;
+@font-size-base: 14px;
 
 h5, h6 {
   font-family: 'RobotoCondensed-Bold', 'Roboto Condensed', @headings-font-family !important;
@@ -44,6 +44,18 @@ p.mega {
     font-size: 0.6em;
   }
 
+  font-weight: 200;
+  font-family: @headings-font-family;
+}
+
+p.large {
+  font-size: 56px;
+  line-height: 60px;
+  @media (max-width: @screen-xs-max) {
+    font-size: 40px;
+    line-height: 45px;
+  }
+  
   font-weight: 200;
   font-family: @headings-font-family;
 }
