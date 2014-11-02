@@ -41,6 +41,7 @@ iron:url@1.0.0
 jquery@1.0.1
 json@1.0.1
 launch-screen@1.0.0
+lauricio:less-autoprefixer@1.0.7
 less@1.0.11
 livedata@1.0.11
 localstorage@1.0.1
