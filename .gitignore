@@ -40,3 +40,4 @@ bin/
 /node_modules
 settings-deploy.json
 /build
+.bower_components/
