@@ -10,7 +10,6 @@ accounts-base
 mrt:chartjs@0.0.6
 aldeed:collection2
 iron:router
-bootstrap3-less
 arunoda:npm
 meteorhacks:npm
 
@@ -20,4 +19,5 @@ flamparski:moment-timezone
 percolatestudio:synced-cron
 http
 lauricio:less-autoprefixer
+nemo64:bootstrap
 

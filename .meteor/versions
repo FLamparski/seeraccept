@@ -12,7 +12,6 @@ binary-heap@1.0.1
 blaze-tools@1.0.1
 blaze@2.0.3
 boilerplate-generator@1.0.1
-bootstrap3-less@0.0.0
 callback-hook@1.0.1
 check@1.0.2
 ctl-helper@1.0.4
@@ -42,7 +41,6 @@ jquery@1.0.1
 json@1.0.1
 launch-screen@1.0.0
 lauricio:less-autoprefixer@1.0.7
-less@1.0.11
 livedata@1.0.11
 localstorage@1.0.1
 logging@1.0.5
@@ -56,6 +54,8 @@ mobile-status-bar@1.0.1
 mongo-livedata@1.0.6
 mongo@1.0.8
 mrt:chartjs@0.0.6
+nemo64:bootstrap-data@3.3.0_1
+nemo64:bootstrap@3.3.0_1
 npm-container@1.0.0
 oauth2@1.1.1
 oauth@1.1.2
