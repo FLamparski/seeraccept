@@ -2,12 +2,11 @@
   <div class="main">
     <div class="main-content">
       <div class="main-content-item col-xs-12">
-        <h2>Submission status
+        <h2 class="ui-label">Submission status
           <a href="/portals/me"
-             class="btn btn-primary btn-lg pull-right">See all <i class="fa fa-angle-right"></i></a>
+             class="btn btn-primary pull-right">See all <i class="fa fa-angle-right"></i></a>
         </h2>
-        <hr />
-        <div class="row">
+        <div class="row card">
           <div class="col-xs-6 col-xs-push-3 col-md-3 col-md-push-1">
             {{#if allReady}}
               {{>portalPieChart}}
@@ -55,8 +54,8 @@
         {{#if isNextSeerAvailable}}
         {{>badgeProgress}}
         {{/if}}
-        <h2>Time taken</h2>
-        <div class="row">
+        <h2 class="ui-label">Time taken</h2>
+        <div class="row card" style="margin-bottom: 1.5em">
           <div class="col-sm-4 text-center">
             <p class="lead">Shortest response</p>
             <p class="large green">
@@ -90,8 +89,8 @@
 
 <template name="badgeProgress">
 {{#with nextSeerBadge}}
-<h2>Seer progress</h2>
-<div class="row">
+<h2 class="ui-label">Seer progress</h2>
+<div class="row card">
   <div class="col-xs-10 col-xs-push-1">
     <p>{{#unless eq currentLevel 'Before'}}You currently have the {{currentLevel}} Seer medal.{{else}}You have not yet unlocked Seer.{{/unless}} You will need to have {{toNextLevel}} more portal(s) accepted for {{nextLevel}}.</p>
     <div class="progress">
