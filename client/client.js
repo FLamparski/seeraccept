@@ -84,7 +84,7 @@ Router.map(function() {
   this.route('dashboard', {
       onBeforeAction: function (){
         console.log('/dashboard onBefore');
-        Session.set('pageSubtitle', 'Your Dashboard'); 
+        Session.set('pageSubtitle', 'Your Dashboard');
         this.next();
       },
       waitOn: function() {
@@ -101,7 +101,7 @@ Router.map(function() {
   });
   this.route('home', {
     path: '/',
-    onBeforeAction: function(pause) {
+    onBeforeAction: function() {
       if (Meteor.loggingIn()) {
         this.render('spincover');
       } else if (Meteor.userId()) {
@@ -115,6 +115,9 @@ Router.map(function() {
   this.route('portals', {
     path: 'portals/:owner',
     onBeforeAction: function() {
+      if(!Meteor.userId()){
+        this.render('login');
+      }
       if(this.ready()) {
         var user = Meteor.users.findOne({_id: this.params.owner});
         if (this.params.owner === 'me') {
@@ -128,6 +131,10 @@ Router.map(function() {
       }
     },
     waitOn: function() {
+      if (!Meteor.userId()) {
+        console.log('You are not logged in');
+        Router.go('home');
+      }
       if (this.params.owner === 'me') {
         console.log('magic me found: rewrite to %s', Meteor.userId());
         this.params.owner = Meteor.userId();
@@ -155,7 +162,7 @@ Router.map(function() {
         }
         return Portals.find({submitter: ent._id});
       }
-    } 
+    }
   });
   this.route('portalDetails', {
     path: 'portal/:portalId',
