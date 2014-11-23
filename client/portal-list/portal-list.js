@@ -158,16 +158,25 @@ Template.portals.events({
     $('#portalTable .filter-bar').toggleClass('hidden');
   },
   'click div.portal-item': function(evt) {
+    var self = this;
     evt.preventDefault();
     var row = evt.currentTarget.parentElement;
     $(row).toggleClass('active');
-    if (_.contains(expandedPortalRows, this._id)) {
-      expandedPortalRows.splice(expandedPortalRows.indexOf(this._id), 1);
+    $('.portal-details', row).removeClass('now-open');
+    if (_.contains(expandedPortalRows, self._id)) {
+      expandedPortalRows.splice(expandedPortalRows.indexOf(self._id), 1);
     } else {
-      expandedPortalRows.push(this._id);
+      expandedPortalRows.push(self._id);
     }
-    CSSUtil.onTransitionEnd(row, function(evt) {
+    CSSUtil.onTransitionEnd(row, _.once(function(evt) {
       console.log('transition end:', evt.originalEvent.propertyName);
-    });
+      if (_.contains(expandedPortalRows, self._id)) {
+        $('.portal-details', row).addClass('now-open');
+        PortalDetails(self._id, row);
+      } else {
+        $('.portal-details .row', row).remove();
+        $('.portal-details', row).append($(Blaze.toHTML(Template.provisionalBody)));
+      }
+    }));
   }
 });
