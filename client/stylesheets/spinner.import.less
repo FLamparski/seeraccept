@@ -7,6 +7,37 @@
   }
 }
 
+.portal-item {
+  .submitted {
+    .spinner-main {
+      border-top-color: @portal_submitted_text;
+      border-left-color: @portal_submitted_text;
+      border-right-color: @portal_submitted_text;
+    }
+  }
+  .live {
+    .spinner-main {
+      border-top-color: @portal_live_text;
+      border-left-color: @portal_live_text;
+      border-right-color: @portal_live_text;
+    }
+  }
+  .rejected {
+    .spinner-main {
+      border-top-color: @portal_rejected_text;
+      border-left-color: @portal_rejected_text;
+      border-right-color: @portal_rejected_text;
+    }
+  }
+  .duplicate {
+    .spinner-main {
+      border-top-color: @portal_duplicate_text;
+      border-left-color: @portal_duplicate_text;
+      border-right-color: @portal_duplicate_text;
+    }
+  }
+}
+
 .spinner-container {
   width: 150px;
   height: 150px;
@@ -21,34 +52,6 @@
   }
   margin: 0 auto;
 
-  &.submitted {
-    .spinner-main {
-      border-top-color: @portal_submitted_text;
-      border-left-color: @portal_submitted_text;
-      border-right-color: @portal_submitted_text;
-    }
-  }
-  &.live {
-    .spinner-main {
-      border-top-color: @portal_live_text;
-      border-left-color: @portal_live_text;
-      border-right-color: @portal_live_text;
-    }
-  }
-  &.rejected {
-    .spinner-main {
-      border-top-color: @portal_rejected_text;
-      border-left-color: @portal_rejected_text;
-      border-right-color: @portal_rejected_text;
-    }
-  }
-  &.duplicate {
-    .spinner-main {
-      border-top-color: @portal_duplicate_text;
-      border-left-color: @portal_duplicate_text;
-      border-right-color: @portal_duplicate_text;
-    }
-  }
 
   .spinner-main {
     width: 130px;

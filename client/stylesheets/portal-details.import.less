@@ -19,7 +19,14 @@
   overflow: auto;
 
   > .provisional-body, .portal-details-body {
-    display: block;
+    display: none;
+  }
+
+  &.now-open {
+    > .provisional-body, .portal-details-body {
+      display: block;
+      min-height: 470px;
+    }
   }
 
   > .provisional-body {
