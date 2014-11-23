@@ -12,12 +12,11 @@ aldeed:collection2
 iron:router
 arunoda:npm
 meteorhacks:npm
-
+lauricio:less-autoprefixer
+nemo64:bootstrap
 npm-container
 flamparski:moment-locales
 flamparski:moment-timezone
 percolatestudio:synced-cron
 http
-lauricio:less-autoprefixer
-nemo64:bootstrap
 
