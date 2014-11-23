@@ -1,6 +1,7 @@
-console.log("Entering client.js");
+/* global Router, Tracker, Session, Meteor, Alerts, Portals, $, _ */
 
 var currentUser = null;
+var activeAlertObserver = null;
 
 Tracker.autorun(function() {
   activeAlertObserver = Alerts.find({uid: Meteor.userId()}).observe({
@@ -20,7 +21,7 @@ Tracker.autorun(function(){
   if(!Meteor.userId()){
     $('body').removeClass('app').addClass('landing');
   } else {
-    if (currentUser != Meteor.userId()) {
+    if (currentUser !== Meteor.userId()) {
       onlogincb();
       currentUser = Meteor.userId();
     }
@@ -44,7 +45,7 @@ Tracker.autorun(function(){
 var _old_uid = null;
 Tracker.autorun(function(){
   var uid = Meteor.userId(), interval;
-  if (uid && uid != _old_uid) {
+  if (uid && uid !== _old_uid) {
     clearInterval(interval);
     interval = setInterval(function() {
       Meteor.call('refreshSession');
@@ -174,40 +175,6 @@ Router.map(function() {
 });
 
 
-Template.header.rendered = function(){
-  var self = this;
-  var oldPos = self.$('.dropdown-menu').offset();
-  var myWidth = self.$('.dropdown-menu').outerWidth();
-  var activatorWidth = self.$('.dropdown-toggle').outerWidth();
-  var newPos = { top: oldPos.top, left: activatorWidth - myWidth };
-  console.log('Moving the dropdown menu from (%d, %d) to (%d, %d)', oldPos.left,
-      oldPos.top, newPos.left, newPos.top);
-  self.$('.dropdown-menu').offset(newPos);
-};
-
-Template.header.helpers({
-  'status': Meteor.status
-});
-
-Template.header.events({
-  "click .refresh": function (e, tmpl) {
-    console.log("Check mail start...");
-    if(!Meteor.userId()){
-      console.error("Not yet logged in.");
-      return;
-    } else {
-      Meteor.call('check_mail', function (){});
-    }
-  },
-  "click .portals-filter": function (e, tmpl) {
-    $('#portalTable > .filter-bar').toggleClass('hidden');
-    tmpl.$('.portals-filter').toggleClass('active');
-  },
-  'click .drawer-toggle': function(tpl, e) {
-    $('.sidebar-nav-drawer').drawer('toggle', 150);
-  }
-});
-
 /*Template.portalList.helpers({
     portals: function (){
                 return Portals.find({}).fetch()
@@ -229,20 +196,7 @@ Template.header.events({
             }
 });*/
 
-/*Template.portalList.events({
-    "click .portal-item": function() {
-        Session.set("selected_portal", this._id);
-    }
-});*/
-
-
-
-
-
-function get_current_portal(){
-    return Portals.findOne({_id: Session.get("selected_portal")});
-}
-
+/* jshint ignore:start */
 Template.portalDetails.helpers({
     selected_portal: function(){
         return Session.get("selected_portal");
@@ -272,7 +226,7 @@ Template.portalDetails.helpers({
         var text = "This portal ",
             hist = p.history.sort(pHistoryPred);
         if(p.history.length > 1) {
-            text += "took " 
+            text += "took "
                + Math.round((hist[0].timestamp - hist[1].timestamp)/(1000*3600*24))
                + " days to "
                + (hist[0].what === 'live' ? 'go live' : 'be rejected') + ".";
@@ -282,78 +236,4 @@ Template.portalDetails.helpers({
         return text;
     }
 });
-
-
-
-Template.sidebar.rendered = function() {
-  this.$('.sidebar-nav-drawer').drawer('left');
-};
-
-Template.sidebar.helpers({
-  Meteor: function() {
-    return Meteor
-  }
-});
-
-Template.sidebar.events({
-  'click a': function() {
-    $('.sidebar-nav-drawer').drawer('hide');
-  }
-});
-
-var LOADING_MESSAGES = [
-  "It's a fine day to submit a portal",
-  "Be careful with high concentrations of XM",
-  "Submit a duck",
-  "Mo portals mo problems",
-  "Remember not to submit military installations"
-];
-Template.loadingPage.helpers({
-  loadingMessage: function() {
-    return LOADING_MESSAGES[_.random(LOADING_MESSAGES.length)];
-  }
-});
-
-/**
- * Cheap equality operator for Handlebars
- */
-Template.registerHelper('eq', function(a, b) {
-  return a == b;
-});
-/**
- * Lowercase of str for use in templates
- */
-Template.registerHelper('downcase', function(str) {
-  return str && str.toLowerCase();
-});
-/**
- * Sentence case: capitalise the first letter
- */
-Template.registerHelper('sentenceCase', function(str) {
-  return str && str[0].toUpperCase() + str.slice(1);
-});
-/**
- * Returns 'active' if the route @route is the current
- * route. The Fragment version does a regexp for a
- * more fuzzy match.
- */
-Template.registerHelper('activeFor', function(route){
-  return (Router.current().url === '/'  + route) ? 'active' : '';
-});
-Template.registerHelper('activeForFragment', function(routeFragment){
-  if (new RegExp(routeFragment, 'i').test(Router.current().url)) {
-    return 'active';
-  } else {
-    return '';
-  }
-});
-/**
- * Generate a CSS class for the current route.
- * Does it by removing the leading slash, and
- * then substituting trailing slashes with spaces,
- * so routes like /portals/me become
- * CSS classes 'portals me'.
- */
-Template.registerHelper('routeClass', function(){
-  return Router.current().url.substring(1).replace('/', ' ');
-});
+/* jshint ignore:end */
