@@ -113,6 +113,12 @@ Router.map(function() {
       }
     }
   });
+  this.route('homeredir', {
+    path: '/home',
+    onBeforeAction: function() {
+      Router.go('home');
+    }
+  });
   this.route('portals', {
     path: 'portals/:owner',
     onBeforeAction: function() {
