@@ -119,6 +119,8 @@ Template.portals.helpers({
   }
 });
 
+expandedPortalRows = [];
+
 Template.portals.events({
   'click [data-sort-by]': function(evt, tpl) {
     var sortBy = tpl.$(evt.currentTarget).data('sort-by');
@@ -155,7 +157,16 @@ Template.portals.events({
     $('#portalTable .filter-bar').toggleClass('hidden');
   },
   'click div.portal-item': function(evt) {
-    $(evt.currentTarget.parentElement).toggleClass('active');
-    console.log('click portal', this._id);
+    evt.preventDefault();
+    var row = evt.currentTarget.parentElement;
+    $(row).toggleClass('active');
+    if (_.contains(expandedPortalRows, this._id)) {
+      expandedPortalRows.splice(expandedPortalRows.indexOf(this._id), 1);
+    } else {
+      expandedPortalRows.push(this._id);
+    }
+    CSSUtil.onTransitionEnd(row, function(evt) {
+      console.log('transition end:', evt.originalEvent.propertyName);
+    });
   }
 });
