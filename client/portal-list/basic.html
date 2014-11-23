@@ -15,7 +15,7 @@
         <div class="portal-list">
           {{#each portals}}
           <div class="portal-row {{downcase portalStatus}}" data-portal-id="{{_id}}">
-            <div class="portal-item">
+            <div class="portal-item ui-label">
               <div class="portal-thumbnail ui-label" style="background-image: url({{image}});">
                 Portal image for {{name}}
               </div>
@@ -52,12 +52,7 @@
               {{/if}}
             </div>
             <div class="portal-details">
-              <div class="provisional-body">
-                <div class="spinner-container small {{portalStatus}}">
-                  <div class="spinner-main">
-                  </div>
-                </div>
-              </div>
+              {{> provisionalBody}}
             </div>
           </div>
           {{/each}}
@@ -92,6 +87,15 @@
           </div>
         </footer>
       </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<template name="provisionalBody">
+<div class="provisional-body">
+  <div class="spinner-container small">
+    <div class="spinner-main">
     </div>
   </div>
 </div>
