@@ -1,0 +1,64 @@
+@keyframes spinner-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-359deg);
+  }
+}
+
+.spinner-container {
+  width: 150px;
+  height: 150px;
+  &.small {
+    width: 70px;
+    height: 70px;
+
+    .spinner-main {
+      width: 64px;
+      height: 64px;
+    }
+  }
+  margin: 0 auto;
+
+  &.submitted {
+    .spinner-main {
+      border-top-color: @portal_submitted_text;
+      border-left-color: @portal_submitted_text;
+      border-right-color: @portal_submitted_text;
+    }
+  }
+  &.live {
+    .spinner-main {
+      border-top-color: @portal_live_text;
+      border-left-color: @portal_live_text;
+      border-right-color: @portal_live_text;
+    }
+  }
+  &.rejected {
+    .spinner-main {
+      border-top-color: @portal_rejected_text;
+      border-left-color: @portal_rejected_text;
+      border-right-color: @portal_rejected_text;
+    }
+  }
+  &.duplicate {
+    .spinner-main {
+      border-top-color: @portal_duplicate_text;
+      border-left-color: @portal_duplicate_text;
+      border-right-color: @portal_duplicate_text;
+    }
+  }
+
+  .spinner-main {
+    width: 130px;
+    height: 130px;
+    margin: auto auto;
+    border-radius: 100%;
+    border-top: 3px solid black;
+    border-right: 3px solid black;
+    border-left: 3px solid black;
+    border-bottom: 3px solid transparent;
+    animation: spinner-spin 1s infinite linear;
+  }
+}

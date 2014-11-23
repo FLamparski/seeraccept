@@ -1,6 +1,7 @@
 @import 'packages/bootstrap3-less/bootstrap.import.less';
 @import 'colours.import.less';
 @import 'typography.import.less';
+@import 'spinner.import.less';
 
 @import '../lib/jquery.growl.import.less';
 
@@ -20,31 +21,25 @@
 
 @dropdown-header-color: @gray-darker;
 
-
-body.drawer-open {
-  /* Prevent scrolling on the body element
-   * if there is currently a drawer open.
-   */
-  overflow: hidden;
-}
-
-.wrapper, .container-fluid {
-  position: absolute;
+html, body {
   width: 100%;
   height: 100%;
+}
 
-  &.dashboard {
-    .main > .main-content {
-      @media (min-width: @screen-md-min) {
-        padding-top: 115px;
-      }
-    }
-  }
+.wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#growls {
+  padding: 16px;
 }
 
 .wrapper.logged-out {
   background: url('/cover.jpg') no-repeat center center;
-  background-size: cover; 
+  background-size: cover;
 
   .centering.cover {
     display: flex;
@@ -61,7 +56,7 @@ body.drawer-open {
       @media (max-width: @screen-xs-max) {
         width: 100%;
         padding: 15px;
-        
+
         p {
           font-size: 16px;
         }
@@ -110,7 +105,7 @@ body.drawer-open {
 
 .app-bar {
   /* .app-bar begin */
-  position: fixed;
+  position: relative;
   top: 0px;
   width: 100%;
   background-color: @toolbar_bg;
@@ -207,7 +202,7 @@ body.drawer-open {
       }
     }
   }
-  
+
   .dropdown-toggle {
     /* .app-bar .dropdown-toggle */
     text-align: center;
@@ -235,6 +230,13 @@ body.drawer-open {
   text-transform: uppercase;
 }
 
+.main-wrapper {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  flex: 1;
+}
+
 .main {
   .make-xs-column(12);
   min-height: 100%;
@@ -255,10 +257,10 @@ body.drawer-open {
   .main-content {
     .make-row();
     @media (min-width: @screen-lg-min){
-      padding-top: 140px;
+      padding-top: 24px;
     }
     @media (min-width: 0px) and (max-width: @screen-md-max){
-      padding-top: 60px;
+      padding-top: 16px;
     }
   }
 }

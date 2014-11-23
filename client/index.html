@@ -40,14 +40,13 @@
       {{> header}}
       {{> sidebar}}
     {{/if}}
-    <div class="container-fluid {{routeClass}}">
+    <div class="container-fluid main-wrapper {{routeClass}}">
       {{>yield}}
     </div>
   </div>
 </template>
 
 <template name="header">
-    <div class="container-fluid">
       <div class="app-bar {{#unless status.connected}}offline{{/unless}}">
         <div class="header">
           <a class="ipsum-logo drawer-toggle" data-target=".nav-drawer" href="#"><i class="fa fa-lg fa-navicon"></i></a>
@@ -77,7 +76,6 @@
           </li>
         </ul>
       </div>
-    </div>
 </template>
 
 <template name="alerts">
@@ -110,7 +108,10 @@
 <div class="main">
   <div class="main-content">
     <div style="margin-top: 120px;" class="main-content-item col-sm-4 col-sm-push-4 col-xs-6 col-xs-push-3 text-center">
-      <p><i class="fa fa-spin fa-5x fa-circle-o-notch"></i></p>
+      <div class="spinner-container">
+        <div class="spinner-main">
+        </div>
+      </div>
       <p class="mega">Loading</p>
       <p>{{loadingMessage}}</p>
     </div>
