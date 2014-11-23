@@ -4,15 +4,6 @@
     <div class="main-content-item col-xs-12">
       <div id="portalTable">
         <header>
-          <!-- <table class="table table-condensed">
-            <tr class="flex-row">
-              <th class="hidden-xs flex-sm-25"></th>
-              <th class="flex-sm-6">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></th>
-              <th class="col-sm-2">Submitted <a href="#" class="btn {{#if sortBy 'submitted'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="submitted"><i class="fa fa-{{sortState 'submitted'}}"></i></a></th>
-              <th class="col-sm-1">State <a href="#" class="btn {{#if sortBy 'state'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="state"><i class="fa fa-{{sortState 'state'}}"></i></a></th>
-              <th class="col-sm-2"><abbr title="Time to review">TTR</abbr> <a href="#" class="btn {{#if sortBy 'ttr'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="ttr"><i class="fa fa-{{sortState 'ttr'}}"></i></a></th>
-            </tr>
-            </table> -->
           <div class="sort-header">
             <div class="hidden-xs pad-out-image"></div>
             <div class="sort-title">Title <a href="#" class="btn {{#if sortBy 'title'}}btn-info{{/if}} btn-xs pull-right" data-sort-by="title"><i class="fa fa-{{sortState 'title'}}"></i></a></div>
@@ -23,11 +14,12 @@
         </header>
         <div class="portal-list">
           {{#each portals}}
-          <div class="portal-row {{downcase portalStatus}}">
+          <div class="portal-row {{downcase portalStatus}}" data-portal-id="{{_id}}">
             <div class="portal-item">
-              <div class="portal-thumbnail" style="background-image: url({{image}});">
+              <div class="portal-thumbnail ui-label" style="background-image: url({{image}});">
                 Portal image for {{name}}
               </div>
+              {{#if gt viewport.width 768}}
               <div class="portal-text tablet-up">
                 <div class="title">
                   <strong>{{name}}</strong>
@@ -42,6 +34,7 @@
                   {{daysToReview}} days{{#unless hasReview}} waiting{{/unless}}
                 </div>
               </div>
+              {{else}}
               <div class="portal-text mobile">
                 <div class="status pull-right">
                   {{portalStatus}}
@@ -54,6 +47,15 @@
                 </div>
                 <div class="ttr {{#if hasReview}}conclusive{{else}}inconclusive{{/if}}">
                   Time {{#if hasReview}}to review{{else}}in queue{{/if}}: {{daysToReview}} days
+                </div>
+              </div>
+              {{/if}}
+            </div>
+            <div class="portal-details">
+              <div class="provisional-body">
+                <div class="spinner-container small {{portalStatus}}">
+                  <div class="spinner-main">
+                  </div>
                 </div>
               </div>
             </div>
