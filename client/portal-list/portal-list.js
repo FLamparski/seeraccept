@@ -1,4 +1,4 @@
-/* global Session, Template, _, $, togglePortalFilterBox, portalLib, moment */
+/* global Session, Template, _, $, CSSUtil, togglePortalFilterBox, portalLib, moment */
 
 var PORTAL_STATES_ALL = _.keys(portalLib.PORTAL_STATE_TABLE);
 
@@ -119,6 +119,7 @@ Template.portals.helpers({
   }
 });
 
+/* global expandedPortalRows:true */
 expandedPortalRows = [];
 
 Template.portals.events({
