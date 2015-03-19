@@ -1,14 +1,16 @@
-Meteor.startup(function (){
+/* eslint-env node */
+/* global Meteor, Accounts */
+
+Meteor.startup(function() {
 
   Accounts.loginServiceConfiguration.remove({
-    service: "google"
+    service: 'google'
   });
 
   Accounts.loginServiceConfiguration.insert({
-    service: "google",
+    service: 'google',
     clientId: Meteor.settings.clientId,
     secret: Meteor.settings.secret
   });
 
 });
-
