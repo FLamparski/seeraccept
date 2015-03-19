@@ -1,9 +1,9 @@
-/* global Template, Router */
+/* global Template, Router, Meteor, moment */
 /**
  * Cheap equality operator for Handlebars
  */
 Template.registerHelper('eq', function(a, b) {
-  return a == b;
+  return a === b;
 });
 Template.registerHelper('gt', function(a, b) {
   return a > b;
@@ -25,10 +25,10 @@ Template.registerHelper('sentenceCase', function(str) {
  * route. The Fragment version does a regexp for a
  * more fuzzy match.
  */
-Template.registerHelper('activeFor', function(route){
-  return (Router.current().url === '/'  + route) ? 'active' : '';
+Template.registerHelper('activeFor', function(route) {
+  return (Router.current().url === '/' + route) ? 'active' : '';
 });
-Template.registerHelper('activeForFragment', function(routeFragment){
+Template.registerHelper('activeForFragment', function(routeFragment) {
   if (new RegExp(routeFragment, 'i').test(Router.current().url)) {
     return 'active';
   } else {
@@ -42,13 +42,13 @@ Template.registerHelper('activeForFragment', function(routeFragment){
  * so routes like /portals/me become
  * CSS classes 'portals me'.
  */
-Template.registerHelper('routeClass', function(){
+Template.registerHelper('routeClass', function() {
   return Router.current().url.replace(Meteor.absoluteUrl(), '').replace('/', ' ');
 });
 
-Template.registerHelper('fromNow', function(date){
+Template.registerHelper('fromNow', function(date) {
   return moment(date).fromNow();
 });
-Template.registerHelper('dateToISO', function(date){
+Template.registerHelper('dateToISO', function(date) {
   return moment(date).format();
 });

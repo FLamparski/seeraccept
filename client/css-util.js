@@ -1,3 +1,4 @@
+/* eslint-env browser */
 /* global $ */
 
 var whichTransitionEvent = (function (){
@@ -10,8 +11,8 @@ var whichTransitionEvent = (function (){
     'WebkitTransition':'webkitTransitionEnd'
   };
 
-  for(t in transitions){
-    if( el.style[t] !== undefined ){
+  for (t in transitions) {
+    if (typeof el.style[t] !== 'undefined') {
       el.remove(); // don't leak memory
       console.log('using the', transitions[t], 'event');
       return transitions[t];

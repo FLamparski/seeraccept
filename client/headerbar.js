@@ -1,6 +1,7 @@
+/* eslint-env browser */
 /* global Meteor, Template, $ */
 
-Template.header.rendered = function(){
+Template.header.rendered = function() {
   var self = this;
   var oldPos = self.$('.dropdown-menu').offset();
   var myWidth = self.$('.dropdown-menu').outerWidth();
@@ -16,17 +17,23 @@ Template.header.helpers({
 });
 
 Template.header.events({
-  "click .refresh": function (e) {
+  'click .refresh': function(e) {
     e.preventDefault();
-    console.log("Check mail start...");
-    if(!Meteor.userId()){
-      console.error("Not yet logged in.");
+    console.log('Requesting manual refresh');
+    if (!Meteor.userId()) {
+      console.error('No user ID');
       return;
     } else {
-      Meteor.call('check_mail', function (){});
+      Meteor.call('check_mail', function(err) {
+        if (err) {
+          console.error('Manual refresh failed', err);
+          return;
+        }
+        console.log('Manual refresh complete');
+      });
     }
   },
-  "click .portals-filter": function (e, tmpl) {
+  'click .portals-filter': function(e, tmpl) {
     e.preventDefault();
     $('#portalTable > .filter-bar').toggleClass('hidden');
     tmpl.$('.portals-filter').toggleClass('active');
