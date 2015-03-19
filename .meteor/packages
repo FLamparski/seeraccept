@@ -10,13 +10,10 @@ accounts-base
 mrt:chartjs@0.0.6
 aldeed:collection2
 iron:router
-arunoda:npm
 meteorhacks:npm
 lauricio:less-autoprefixer
 nemo64:bootstrap
 npm-container
-flamparski:moment-locales
-flamparski:moment-timezone
 percolatestudio:synced-cron
 http
-
+flamparski:moment-timezone
