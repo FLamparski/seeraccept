@@ -1,22 +1,22 @@
-IPSUM
-=====
+# IPSUM ![IPSUM logo](https://ipsum.filipwieland.com/favicon-96x96.png)
+
+[![Open issues](https://img.shields.io/github/issues/FLamparski/seeraccept.svg)](https://github.com/FLamparski/seeraccept/issues) [![Meteor version 1.0.4.1](https://img.shields.io/badge/Meteor-1.0.4.1-brightgreen.svg)](https://meteor.com/) [![Ipsum version 1.0.4.1](https://img.shields.io/badge/Ipsum-0.2.5-green.svg)](https://ipsum.filipwieland.com/)
 
 This is a project aimed at helping you track your portal submissions.
 Simply log in with your Google account, hit "Refresh mail", and see statistics
 about your submissions.
 
-Usage
------
+## Ultra quick-start guide
 
-    git clone ...
-    cd seeraccept
-    mrt install
+[Go here](https://ipsum.filipwieland.com/)
+
+## Local quick-start guide
+
+    # You will need node 0.10.36 and Meteor 1.0.42
+    git clone https://github.com/FLamparski/seeraccept ipsum && cd ipsum
     meteor run --settings settings.json
 
-Then go to http://localhost:3000/ and log in with G+! *I am working on getting this application deployed on a real server.*
-
-How does it work?
------------------
+# How does it work?
 
 IPSUM will scan your gmail account for the following queries:
 
@@ -24,13 +24,14 @@ IPSUM will scan your gmail account for the following queries:
     * `"Ingress Portal Submitted"`
     * `"Ingress Portal Live"`
     * `"Ingress Portal Rejected"`
+    * `"Ingress Portal Duplicate"`
 
 Based on that information, it will construct a dashboard listing your portal
 submissions, highlighting which of them have been rejected or accepted.
 It will also tell you the minimum, average, and maximum time Niantic has taken
 to review a submission.
 
-### Detailed description ###
+### Detailed description
 
 IPSUM will use your G+ profile to automatically determine your account email,
 and then use that information, along with your Google OAuth login to initiate an
@@ -53,25 +54,19 @@ Roadmap
 
 I want to expand IPSUM to support the following:
 
-* **Merging portal submissions:** If you've submitted the same portal several times,
+* [ ] **Merging portal submissions:** If you've submitted the same portal several times,
   you may want to track it as such.
-* **Groups:** Coordinate your submissions with your local group.
-* **Seer Badge progress meter:** This one should be easy.
+* [ ] **Groups:** Coordinate your submissions with your local group.
+* [x] **Seer Badge progress meter:** This one should be easy.
 
 Contributing
 ------------
 
 Want to contribute? Great! Here is what you'll need:
 
-* Node.js with NPM, and you may need to ensure that `/usr/bin/node` is symlinked
-  to `/usr/bin/nodejs`
-* [Meteor](http://meteor.com/) should get you most other things you need
-* [Meteorite](https://github.com/oortcloud/meteorite/) for managing some dependencies
+* [Meteor](http://meteor.com/) should get you all you need
 * Register for the Google Developer Console (free) and create a project to get
   your own localhost tokens. As per Meteor convention, please use the
   following values:
     * *JavaScript origins:* http://localhost:3000/
     * *Callback URL:* http://localhost:3000/_oauth/google?close
-
-Things to note: You might not be able to run IPSUM on Windows, even with a
-Cygnus environment. Use a VM or a Linux or OS X.
