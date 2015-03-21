@@ -52,3 +52,10 @@ Template.registerHelper('fromNow', function(date) {
 Template.registerHelper('dateToISO', function(date) {
   return moment(date).format();
 });
+Template.registerHelper('formatDate', function(date, formatString) {
+  if (typeof formatString === 'object') {
+    formatString = 'L';
+  }
+
+  return moment(date).format(formatString);
+});

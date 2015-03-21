@@ -6,7 +6,7 @@
           {{#each events}}
           <div class="media">
               <h4 class="media-heading">{{what}}</h4>
-              <p>On {{dateToISO timestamp}} &mdash; {{fromNow timestamp}}</p>
+              <p>{{formatDate timestamp 'L'}} &mdash; {{fromNow timestamp}}</p>
           </div>
           {{/each}}
       {{#if intel}}
