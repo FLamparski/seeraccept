@@ -26,6 +26,7 @@ Template.portals.rendered = function() {
     }
   });
   $(window).on('resize', resizePortalTableHeader);
+  Session.set('page.title', 'Your Submissions');
 };
 
 Template.portals.destroyed = function() {

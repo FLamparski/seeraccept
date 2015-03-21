@@ -13,6 +13,9 @@ Template.header.rendered = function() {
 };
 
 Template.header.helpers({
+  'pageTitle': function() {
+    return Session.get('page.title');
+  },
   'status': Meteor.status
 });
 

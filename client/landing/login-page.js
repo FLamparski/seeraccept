@@ -17,3 +17,7 @@ Template.login.events({
     });
   }
 });
+
+Template.login.rendered = function() {
+  document.title = 'Log in - Ipsum';
+};

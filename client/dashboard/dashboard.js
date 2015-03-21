@@ -47,7 +47,11 @@ Template.dashboard.helpers({
   }
 });
 
-piechart_data = function(portals) {
+Template.dashboard.rendered = function() {
+  Session.set('page.title', 'Dashboard');
+};
+
+function piechartData(portals) {
   return [
     {
       value: portalLib.countPortalsWhichAre('submitted', portals),
