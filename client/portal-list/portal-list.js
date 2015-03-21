@@ -20,13 +20,13 @@ function resizePortalTableHeader() {
 }
 
 Template.portals.rendered = function() {
+  Session.set('page.title', 'Your Submissions');
   this.$('#portalTable > header').affix({
     offset: {
       top: $('.app-bar').height() + 10
     }
   });
   $(window).on('resize', resizePortalTableHeader);
-  Session.set('page.title', 'Your Submissions');
 };
 
 Template.portals.destroyed = function() {
