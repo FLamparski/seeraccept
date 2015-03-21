@@ -1,6 +1,7 @@
 <template name="dashboard">
   <div class="main">
     <div class="main-content">
+      {{#if portals}}
       <div class="main-content-item col-xs-12">
         <h2 class="ui-label">Submission status
           <a href="/portals/me"
@@ -76,6 +77,9 @@
           </div>
         </div>
       </div>
+      {{else}}
+      No portals. :(
+      {{/if}}
     </div>
   </div>
 </template>
