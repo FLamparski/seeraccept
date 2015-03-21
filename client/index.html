@@ -81,19 +81,23 @@
 </template>
 
 <template name="sidebar">
-<div class="sidebar-nav-drawer">
-  <h2>Ipsum <img src="/ic_seeraccept.svg" class="pull-right img img-responsive" style="height: 48px" /></h2>
-  <hr />
-  <ul class="nav nav-stacked nav-pills">
-    <li class="{{activeForFragment 'dashboard'}}"><a href="{{pathFor 'dashboard'}}"><i class="fa fa-fw fa-tachometer"></i>Dashboard</a></li>
-    <li class="{{activeForFragment 'portals/me'}}"><a href="/portals/me"><i class="fa fa-fw fa-database"></i>My Submissions</a></li>
-    <li class="{{activeForFragment 'settings'}} disabled"><a href="{{pathFor 'settings'}}" title="Coming soon"><i class="fa fa-cogs"></i> My Settings</a></li>
-  </ul>
-  <hr />
-  <div class="status text-center">
-    <small>Ipsum 0.2.4 beta<br />{{Meteor.release}}<br />{{#if Meteor.status.connected}}online{{else}}offline{{/if}}</small>
+  <div class="sidebar-nav-drawer">
+    <h2>Ipsum
+      <img src="/ic_seeraccept.svg" class="pull-right img img-responsive" style="height: 48px" />
+    </h2>
+    <hr />
+    <ul class="nav nav-stacked nav-pills">
+      <li class="{{activeForFragment 'dashboard'}}"><a href="{{pathFor 'dashboard'}}"><i class="fa fa-fw fa-tachometer"></i>Dashboard</a></li>
+      <li class="{{activeForFragment 'portals/me'}}"><a href="/portals/me"><i class="fa fa-fw fa-database"></i>My Submissions</a></li>
+      <li class="{{activeForFragment 'settings'}} disabled"><a href="{{pathFor 'settings'}}" title="Coming soon"><i class="fa fa-cogs"></i> My Settings</a></li>
+    </ul>
+    <hr />
+    <div class="status text-center">
+      <small>Ipsum 0.2.5 beta
+        <br />{{Meteor.release}}
+        <br />{{#if Meteor.status.connected}}online{{else}}offline{{/if}}</small>
+    </div>
   </div>
-</div>
 </template>
 
 <template name="loadingPage">
