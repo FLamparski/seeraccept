@@ -1,4 +1,4 @@
-# IPSUM ![IPSUM logo](https://ipsum.filipwieland.com/favicon-96x96.png)
+# IPSUM
 
 [![Open issues](https://img.shields.io/github/issues/FLamparski/seeraccept.svg)](https://github.com/FLamparski/seeraccept/issues) [![Meteor version 1.0.4.1](https://img.shields.io/badge/Meteor-1.0.4.1-brightgreen.svg)](https://meteor.com/) [![Ipsum version 1.0.4.1](https://img.shields.io/badge/Ipsum-0.2.5-green.svg)](https://ipsum.filipwieland.com/)
 
