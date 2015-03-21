@@ -1,5 +1,5 @@
-/* eslint-env browser */
-/* global Meteor, Template, $ */
+/* eslint-env browser,jquery */
+/* global Meteor, Template, Session */
 
 Template.header.rendered = function() {
   var self = this;

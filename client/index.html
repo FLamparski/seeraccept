@@ -1,36 +1,36 @@
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, user-scalable=no">
-    <title>Ipsum</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, user-scalable=no">
+  <title>Ipsum</title>
 
-    <!-- Application manifest -->
-    <link rel="manifest" href="/manifest.json">
-    <!-- Application icons -->
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
-    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
-    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <meta name="msapplication-TileColor" content="#00aba9">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <meta name="msapplication-config" content="/browserconfig.xml">
-    
-    <!-- Search engine tags. This is an app, so it should not be searchable. -->
-    <link href="{{ Meteor.absoluteUrl }}" rel="canonical" />
+  <!-- Application manifest -->
+  <link rel="manifest" href="/manifest.json">
+  <!-- Application icons -->
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+  <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
+  <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+  <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+  <meta name="msapplication-TileColor" content="#00aba9">
+  <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+  <meta name="msapplication-config" content="/browserconfig.xml">
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
+  <!-- Search engine tags. This is an app, so it should not be searchable. -->
+  <link href="{{ Meteor.absoluteUrl }}" rel="canonical" />
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
@@ -49,44 +49,35 @@
 </template>
 
 <template name="header">
-      <div class="app-bar {{#unless status.connected}}offline{{/unless}}">
-        <div class="header">
-          <a class="ipsum-logo drawer-toggle" data-target=".nav-drawer" href="#"><i class="fa fa-lg fa-navicon"></i></a>
-          <h1>Your Submissions</h1>
-        </div>
-        <ul class="nav">
-          <li class="nav-icon"><a href="#" class="refresh"><i class="fa {{#if currentUser.profile.isCheckingMail}}fa-spin{{/if}} fa-refresh"></i></a></li>
-          {{#if activeForFragment 'portals'}}
-          <li class="nav-icon">
-            <a href="#" class="portals-filter"><i class="fa fa-search"></i></a>
-          </li>
-          {{/if}}
+  <div class="app-bar {{#unless status.connected}}offline{{/unless}}">
+    <div class="header">
+      <a class="ipsum-logo drawer-toggle" data-target=".nav-drawer" href="#"><i class="fa fa-lg fa-navicon"></i></a>
+      <h1>{{pageTitle}}</h1>
+    </div>
+    <ul class="nav">
+      <li class="nav-icon"><a href="#" class="refresh"><i class="fa {{#if currentUser.profile.isCheckingMail}}fa-spin{{/if}} fa-refresh"></i></a></li>
+      {{#if activeForFragment 'portals'}}
+      <li class="nav-icon">
+        <a href="#" class="portals-filter"><i class="fa fa-search"></i></a>
+      </li>
+      {{/if}}
+    </ul>
+    <ul class="nav pull-right">
+      <li class="hidden-xs"><a class="{{activeForFragment 'dashboard'}}" href="{{pathFor 'dashboard'}}">Dashboard</a></li>
+      <li class="dropdown" id="dropdownOverflowMenu">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
+        <ul class="dropdown-menu" role="menu">
+          <li class="dropdown-header">Ipsum</li>
+          <li><a href="{{pathFor 'help'}}">Help</a></li>
+          <li><a href="https://github.com/FLamparski/seeraccept/issues" target="blank">Report an issue <i class="fa fa-external-link"></i></a></li>
+          <li class="divider"></li>
+          <li class="dropdown-header">{{currentUser.profile.nickname}}</li>
+          <li><a href="{{pathFor 'settings'}}">My settings</a></li>
+          <li><a href="{{pathFor 'logout'}}">Sign Out</a></li>
         </ul>
-        <ul class="nav pull-right">
-          <li class="hidden-xs"><a class="{{activeForFragment 'dashboard'}}" href="{{pathFor 'dashboard'}}">Dashboard</a></li>
-          <li class="dropdown" id="dropdownOverflowMenu">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
-            <ul class="dropdown-menu" role="menu">
-              <li class="dropdown-header">Ipsum</li>
-              <li><a href="{{pathFor 'help'}}">Help</a></li>
-              <li><a href="https://github.com/FLamparski/seeraccept/issues" target="blank">Report an issue <i class="fa fa-external-link"></i></a></li>
-              <li class="divider"></li>
-              <li class="dropdown-header">{{currentUser.profile.nickname}}</li>
-              <li><a href="{{pathFor 'settings'}}">My settings</a></li>
-              <li><a href="{{pathFor 'logout'}}">Sign Out</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-</template>
-
-<template name="alerts">
-{{#each alerts}}
-  <div class="alert alert-dismissable alert-{{atype}}">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      <strong>{{atype}}</strong>: {{atext}}
+      </li>
+    </ul>
   </div>
-{{/each}}
 </template>
 
 <template name="sidebar">
@@ -105,18 +96,17 @@
 </div>
 </template>
 
-
 <template name="loadingPage">
-<div class="main">
-  <div class="main-content">
-    <div style="margin-top: 120px;" class="main-content-item col-sm-4 col-sm-push-4 col-xs-6 col-xs-push-3 text-center">
-      <div class="spinner-container">
-        <div class="spinner-main">
+  <div class="main">
+    <div class="main-content">
+      <div style="margin-top: 120px;" class="main-content-item col-sm-4 col-sm-push-4 col-xs-6 col-xs-push-3 text-center">
+        <div class="spinner-container">
+          <div class="spinner-main">
+          </div>
         </div>
+        <p class="mega">Loading</p>
+        <p>{{loadingMessage}}</p>
       </div>
-      <p class="mega">Loading</p>
-      <p>{{loadingMessage}}</p>
     </div>
   </div>
-</div>
 </template>

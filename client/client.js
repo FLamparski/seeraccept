@@ -1,24 +1,38 @@
-/* global Router, Tracker, Session, Meteor, Alerts, Portals, $, _ */
+/* eslint-env browser,jquery */
+/* global Router, Tracker, Session, Meteor, Alerts, Portals, _ */
 
 var currentUser = null;
-var activeAlertObserver = null;
+
+Session.set('page.title', 'Ipsum');
 
 Tracker.autorun(function() {
-  activeAlertObserver = Alerts.find({uid: Meteor.userId()}).observe({
+  document.title = Session.get('page.title');
+});
+
+Tracker.autorun(function() {
+  Alerts.find({
+    uid: Meteor.userId()
+  }).observe({
     added: function(alert) {
-      $.growl[alert.atype]({title: alert.type, message: alert.atext, location: 'br'});
+      $.growl[alert.atype]({
+        title: alert.type,
+        message: alert.atext,
+        location: 'br'
+      });
     }
   });
 });
 
-var onlogincb = function(){
-    _.chain(Alerts.find().fetch()).pluck('_id').each(function(a){
-        Alerts.remove({_id: a._id});
+function onlogincb() {
+  _.chain(Alerts.find().fetch()).pluck('_id').each(function(a) {
+    Alerts.remove({
+      _id: a._id
     });
-};
+  });
+}
 
-Tracker.autorun(function(){
-  if(!Meteor.userId()){
+Tracker.autorun(function() {
+  if (!Meteor.userId()) {
     $('body').removeClass('app').addClass('landing');
   } else {
     if (currentUser !== Meteor.userId()) {
@@ -29,47 +43,61 @@ Tracker.autorun(function(){
 });
 
 var conntectedState = Meteor.status().connected;
+var hasDisconnectedBefore = false;
 
-Tracker.autorun(function(){
+Tracker.autorun(function() {
   var status = Meteor.status();
   if (status.connected !== conntectedState) {
     if (!status.connected) {
-      $.growl.warning({title: 'You are offline', message: 'There is no connection to the ipsum server', location: 'br'});
-    } else {
-      $.growl.notice({title: 'Connected to Ipsum', message: 'You are connected to the ipsum server in real time', location: 'br'});
+      hasDisconnectedBefore = true;
+      $.growl.warning({
+        title: 'You are offline',
+        message: 'Some features may not work as expected',
+        location: 'br'
+      });
+    } else if (hasDisconnectedBefore) {
+      hasDisconnectedBefore = false;
+      $.growl.notice({
+        title: 'Connected to Ipsum',
+        message: 'Your connection to Ipsum has been restored',
+        location: 'br'
+      });
     }
     conntectedState = status.connected;
   }
 });
 
-var _old_uid = null;
-Tracker.autorun(function(){
-  var uid = Meteor.userId(), interval;
-  if (uid && uid !== _old_uid) {
+var currentUserID = null;
+Tracker.autorun(function() {
+  var uid = Meteor.userId(),
+    interval;
+  if (uid && uid !== currentUserID) {
     clearInterval(interval);
     interval = setInterval(function() {
       Meteor.call('refreshSession');
     }, 30 * 60 * 1000);
-    _old_uid = uid;
+    currentUserID = uid;
   }
 });
 
 Router.configure({
   layoutTemplate: 'layout',
   loadingTemplate: 'loadingPage',
-  waitOn: function () {
+  waitOn: function() {
     return [
       Meteor.subscribe('alerts')
     ];
   }
 });
-Router.onBeforeAction(function(){
-  if(!Meteor.userId() && !Meteor.loggingIn()){
+Router.onBeforeAction(function() {
+  if (!Meteor.userId() && !Meteor.loggingIn()) {
     this.render('login');
   } else {
     this.next();
   }
-}, {except: ['home', 'shared', 'logout', 'help']});
+}, {
+  except: ['home', 'shared', 'logout', 'help']
+});
 Router.map(function() {
   this.route('logout', {
     action: function() {
@@ -122,11 +150,13 @@ Router.map(function() {
   this.route('portals', {
     path: 'portals/:owner',
     onBeforeAction: function() {
-      if(!Meteor.userId()){
+      if (!Meteor.userId()) {
         this.render('login');
       }
-      if(this.ready()) {
-        var user = Meteor.users.findOne({_id: this.params.owner});
+      if (this.ready()) {
+        var user = Meteor.users.findOne({
+          _id: this.params.owner
+        });
         if (this.params.owner === 'me') {
           console.log('route: my portals');
           Session.set('screenTitle', 'Your Submissions');
@@ -158,12 +188,16 @@ Router.map(function() {
       ];
     },
     data: function() {
-      if(this.ready()){
+      if (this.ready()) {
         var ent;
         console.log('Looking for portals whose owner is entity id %s', this.params.owner);
         console.log('Currently has %d users', Meteor.users.find().count());
-        if (Meteor.users.findOne({_id: this.params.owner})) {
-          ent = Meteor.users.findOne({_id: this.params.owner});
+        if (Meteor.users.findOne({
+            _id: this.params.owner
+          })) {
+          ent = Meteor.users.findOne({
+            _id: this.params.owner
+          });
           console.log('Found user %s for %s', ent.profile.nickname, ent._id);
           ent._type = ent._id === Meteor.userId() ? 'self' : 'other';
         }

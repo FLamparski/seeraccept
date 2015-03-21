@@ -1,4 +1,5 @@
-/* global Session, Template, _, $, CSSUtil, togglePortalFilterBox, portalLib, moment */
+/* eslint-env browser,jquery */
+/* global Session, Template, _, CSSUtil, togglePortalFilterBox, portalLib, moment, Blaze */
 
 var PORTAL_STATES_ALL = _.keys(portalLib.PORTAL_STATE_TABLE);
 
@@ -8,11 +9,11 @@ Template.portals.created = function() {
   Session.set('portalStateFilter', PORTAL_STATES_ALL);
 };
 
-function resizePortalTableHeader(){
+function resizePortalTableHeader() {
   $('#portalTable > header').width($('#portalTable').width())
     .css('top', ($('.app-bar').height() - 10).toString().concat('px'));
   if ($('html').width() > 768) {
-    $('#portalTable > table tr:nth-child(1) > td:not(.visible-xs)').each(function(i){
+    $('#portalTable > table tr:nth-child(1) > td:not(.visible-xs)').each(function(i) {
       $('#portalTable > header > table tr').children().eq(i).width($(this).width());
     });
   }
@@ -56,9 +57,9 @@ Template.portals.helpers({
   },
   sortState: function(field) {
     var sort = Session.get('portalSort');
-    var sort_field = sort.split(' ')[0];
+    var sortField = sort.split(' ')[0];
     var dir = sort.split(' ')[1];
-    if (field === sort_field) {
+    if (field === sortField) {
       return 'sort-' + dir;
     } else {
       return 'sort';
@@ -89,12 +90,12 @@ Template.portals.helpers({
     var nameFilter = Session.get('portalNameFilter');
     var stateFilter = Session.get('portalStateFilter');
     if (nameFilter && nameFilter.length > 0) {
-      thePortals = _.filter(thePortals, function(portal){
+      thePortals = _.filter(thePortals, function(portal) {
         return new RegExp(nameFilter, 'i').test(portal.name);
       });
     }
     if (stateFilter) {
-      thePortals = _.filter(thePortals, function(portal){
+      thePortals = _.filter(thePortals, function(portal) {
         return _.contains(stateFilter, portalLib.getPortalState(portal));
       });
     }
@@ -148,9 +149,11 @@ Template.portals.events({
   'change *[data-filter-by=state] input[type=checkbox]': function() {
     var allowedStates;
     allowedStates = $('*[data-filter-by=state] input[data-filter-state]')
-      .filter(function() { return this.checked; })
-      .map(function() { return this.dataset.filterState; })
-      .toArray();
+      .filter(function() {
+        return this.checked;
+      }).map(function() {
+        return this.dataset.filterState;
+      }).toArray();
     Session.set('portalStateFilter', allowedStates);
   },
   'click a[data-close=portal-filters]': function() {
@@ -172,7 +175,9 @@ Template.portals.events({
       console.log('transition end:', evt.originalEvent.propertyName);
       if (_.contains(expandedPortalRows, self._id)) {
         $('.portal-details', row).addClass('now-open');
-        PortalDetails(self._id, row);
+        var detailsHTML = Blaze.toHTMLWithData(Template.portalDetails, self);
+        $('.provisional-body', row).remove();
+        $('.portal-details', row).append($(detailsHTML));
       } else {
         $('.portal-details .row', row).remove();
         $('.portal-details', row).append($(Blaze.toHTML(Template.provisionalBody)));

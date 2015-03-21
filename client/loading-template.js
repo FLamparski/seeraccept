@@ -1,11 +1,11 @@
 /* global Template, _ */
 
 var LOADING_MESSAGES = [
-  "It's a fine day to submit a portal",
-  "Be careful with high concentrations of XM",
-  "Submit a duck",
-  "Mo portals mo problems",
-  "Remember not to submit military installations"
+  'It\'s a fine day to submit a portal',
+  'Be careful with high concentrations of XM',
+  'Submit a duck',
+  'Mo portals mo problems',
+  'Remember not to submit military installations'
 ];
 Template.loadingPage.helpers({
   loadingMessage: function() {
