@@ -78,26 +78,30 @@ function piechartData(portals) {
       highlight: '#ffa000'
     }
   ];
-};
-redrawChart = _.debounce(function () {
+}
+
+var redrawChart = _.debounce(function () {
   var chart = Template.portalPieChart._pieChart;
-  var data = piechart_data(Portals.find().fetch());
+  var data = piechartData(Portals.find({submitter: Meteor.userId()}).fetch());
   data.forEach(function(datum, index) {
     chart.segments[index] = _.extend(chart.segments[index], datum);
   });
   chart.update();
 }, 200);
-Template.portalPieChart.rendered = function(){
+
+Template.portalPieChart.rendered = function() {
   console.log('portalPieChart rendered');
-  var self = this;
-  Template.portalPieChart._chartContext = self.find('#portalPieChart').getContext('2d');
-  Template.portalPieChart._pieChart = new Chart(Template.portalPieChart._chartContext, { animation: false, responsive: true })
-    .Pie(piechart_data(Portals.find().fetch()));
-  self._portalObserver = Portals.find().observeChanges({
-    added: redrawChart,
-    changed: redrawChart,
-    removed: redrawChart
-  });
+  setTimeout(function() {
+    var cursor = Portals.find({submitter: Meteor.userId()});
+    Template.portalPieChart._chartContext = this.find('#portalPieChart').getContext('2d');
+    Template.portalPieChart._pieChart = new Chart(Template.portalPieChart._chartContext, { animation: false, responsive: true })
+      .Pie(piechartData(cursor.fetch())); // eslint-disable-line new-cap
+    this._portalObserver = cursor.observeChanges({
+      added: redrawChart,
+      changed: redrawChart,
+      removed: redrawChart
+    });
+  }.bind(this), 0);
 };
 
 Template.portalPieChart.destroyed = function() {
