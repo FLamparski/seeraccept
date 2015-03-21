@@ -114,3 +114,16 @@
     </div>
   </div>
 </template>
+
+<template name="noPortals">
+  <div class="main">
+    <div class="main-content">
+      <div class="main-content-item col-sm-8 col-sm-push-2 col-xs-10 col-xs-push-1 text-center">
+        <img src="/no_portals.svg" alt="No portals here" class="center-block" style="width: 256px">
+        <p class="mega">No submissions found</p>
+        <p><a href="https://support.google.com/ingress/answer/2808254?hl=en" target="_blank">Submit a portal</a> in order to track its progress. Do not delete emails from Ingress Operations.</p>
+        {{#if checkingMail}}<p class="text-muted">If this is your first time loading Ipsum, you may need to wait a while before portals appear.</p>{{/if}}
+      </div>
+    </div>
+  </div>
+</template>

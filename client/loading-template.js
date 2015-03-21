@@ -12,3 +12,9 @@ Template.loadingPage.helpers({
     return LOADING_MESSAGES[_.random(LOADING_MESSAGES.length - 1)];
   }
 });
+
+Template.noPortals.helpers({
+  checkingMail: function() {
+    return Meteor.user().profile.isCheckingMail;
+  }
+});
