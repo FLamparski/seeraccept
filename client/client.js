@@ -111,22 +111,26 @@ Router.map(function() {
     }
   });
   this.route('dashboard', {
-      onBeforeAction: function (){
-        console.log('/dashboard onBefore');
-        Session.set('pageSubtitle', 'Your Dashboard');
-        this.next();
-      },
-      waitOn: function() {
-        console.log('/dashboard waitOn');
-        return Meteor.subscribe('portals', Meteor.userId());
-      },
-      data: function() {
-        console.log('/dashboard data');
-        if (this.ready()) {
-          console.log('/dashboard data - ready');
-          return { allReady: true };
-        }
+    onBeforeAction: function() {
+      console.log('/dashboard onBefore');
+      this.next();
+    },
+    waitOn: function() {
+      console.log('/dashboard waitOn');
+      return Meteor.subscribe('portals', Meteor.userId());
+    },
+    data: function() {
+      console.log('/dashboard data');
+      if (this.ready()) {
+        var data = Portals.find({
+          submitter: Meteor.userId()
+        }).fetch();
+        console.log('/dashboard data - ready', data.length, 'portals');
+        return {
+          portals: data
+        };
       }
+    }
   });
   this.route('home', {
     path: '/',
@@ -168,23 +172,13 @@ Router.map(function() {
       }
     },
     waitOn: function() {
-      if (!Meteor.userId()) {
-        console.log('You are not logged in');
-        Router.go('home');
-      }
       if (this.params.owner === 'me') {
         console.log('magic me found: rewrite to %s', Meteor.userId());
         this.params.owner = Meteor.userId();
       }
       console.log('Will wait for %s\'s portals and users', this.params.owner);
       return [
-        Meteor.subscribe('portals', this.params.owner),
-        {
-          ready: function() {
-            var nusers = Meteor.users.find().count();
-            return nusers > 0;
-          }
-        }
+        Meteor.subscribe('portals', this.params.owner)
       ];
     },
     data: function() {
@@ -201,7 +195,9 @@ Router.map(function() {
           console.log('Found user %s for %s', ent.profile.nickname, ent._id);
           ent._type = ent._id === Meteor.userId() ? 'self' : 'other';
         }
-        return Portals.find({submitter: ent._id});
+        return Portals.find({
+          submitter: ent._id
+        }).fetch();
       }
     }
   });

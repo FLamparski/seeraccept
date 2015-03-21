@@ -7,14 +7,14 @@ Template.dashboard.helpers({
       return 0;
     }
     return Math.round(
-      _.min(portalLib.portalResponseTimes(Portals.find().fetch())));
+      _.min(portalLib.portalResponseTimes(this.portals)));
   },
   longestResponse: function() {
     if (this.portals.length === 0) {
       return 0;
     }
     return Math.round(
-      _.max(portalLib.portalResponseTimes(Portals.find().fetch())));
+      _.max(portalLib.portalResponseTimes(this.portals)));
   },
   averageResponse: function() {
     if (this.portals.length === 0) {
@@ -32,15 +32,15 @@ Template.dashboard.helpers({
     return moment.duration(days, 'days').humanize();
   },
   countPortals: function(what) {
-    return portalLib.countPortalsWhichAre(what, Portals.find().fetch());
+    return portalLib.countPortalsWhichAre(what, this.portals);
   },
   percentagePortals: function(what) {
-    var count = portalLib.countPortalsWhichAre(what, Portals.find().fetch());
-    var total = Portals.find().count();
+    var count = portalLib.countPortalsWhichAre(what, this.portals);
+    var total = this.portals.length;
     return Math.round(count / total * 1000) / 10;
   },
   totalPortals: function() {
-    return Portals.find().count();
+    return this.portals.length;
   },
   isNextSeerAvailable: function() {
     return portalLib.countPortalsWhichAre('live', this.portals) < 5000;

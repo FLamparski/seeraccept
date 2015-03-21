@@ -67,7 +67,7 @@ Template.portals.helpers({
   },
   portals: function() {
     console.log('portals data context start');
-    var portals = this.fetch();
+    var portals = this;
     // If no portals...
     if (!portals.length) {
       console.log('portals data context terminated');
