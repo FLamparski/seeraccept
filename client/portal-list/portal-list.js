@@ -4,7 +4,7 @@
 var PORTAL_STATES_ALL = _.keys(portalLib.PORTAL_STATE_TABLE);
 
 Template.portals.created = function() {
-  Session.set('portalSort', 'title asc');
+  Session.set('portalSort', 'submitted desc');
   Session.set('portalNameFilter', '');
   Session.set('portalStateFilter', PORTAL_STATES_ALL);
 };
@@ -34,13 +34,17 @@ Template.portals.destroyed = function() {
 };
 
 function portalTTR(portal) {
+  if (!_.findWhere(portal.history, {what: 'submitted'})) {
+    return 'Unknown';
+  }
   var ttr = portalLib.getWaitTime(portal).days;
   return ttr;
 }
 
 var sortPredicates = {
   'submitted': function(portal) {
-    return _.findWhere(portal.history, {what: 'submitted'}).timestamp;
+    var event = _.findWhere(portal.history, {what: 'submitted'});
+    return event ? event.timestamp : 0;
   },
   'state': function(portal) {
     return portalLib.PORTAL_STATE_TABLE[portalLib.getPortalState(portal)];
@@ -107,8 +111,8 @@ Template.portals.helpers({
     return Session.get('selectedPortalId') === pid ? 'active' : '';
   },
   submissionDate: function() {
-    var subDate = _.findWhere(this.history, {what: 'submitted'}).timestamp;
-    return moment(subDate).format('DD MMMM YYYY');
+    var event = _.findWhere(this.history, {what: 'submitted'});
+    return event ? moment(event.timestamp).format('DD MMMM YYYY') : 'Unknown';
   },
   portalStatus: function() {
     return portalLib.getPortalState(this);
