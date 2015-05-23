@@ -9,7 +9,8 @@ var Imap = Meteor.npmRequire('imap'),
     's': 'not-yet',
     'l': 'not-yet',
     'r': 'not-yet',
-    'd': 'not-yet'
+    'd': 'not-yet',
+    'v': 'not-yet'
   };
 
 // Since we are checking several searches pretty much simultaneously, we need to
@@ -17,7 +18,11 @@ var Imap = Meteor.npmRequire('imap'),
 // it's not the most complex flag ever, but it's getting there.
 function yield_imap(symbol) {
   imapState[symbol] = 'yield';
-  return (imapState.s === 'yield' && imapState.l === 'yield' && imapState.r === 'yield' && imapState.d === 'yield');
+  return (imapState.s === 'yield' &&
+    imapState.l === 'yield' &&
+    imapState.r === 'yield' &&
+    imapState.d === 'yield' &&
+    imapState.v === 'yield');
 }
 
 function alert_user(uid, atype, atext) {
@@ -33,48 +38,55 @@ function alert_user(uid, atype, atext) {
 
 function handle_search_results(type, results, imap, user, callback) {
   Logger.log('handle_search_results', user._id, type, results.length);
-  var f;
-  try {
-    f = imap.fetch(results, {
-      bodies: ''
-    });
-  } catch (e) {
-    if (e.message === 'Nothing to fetch') {
-      callback(null, []);
-      return;
-    } else {
-      callback(e, null);
-      return;
+  if (results.length) {
+    var f;
+    try {
+      f = imap.fetch(results, {
+        bodies: ''
+      });
+    } catch (e) {
+      if (e.message === 'Nothing to fetch') {
+        callback(null, []);
+        return;
+      } else {
+        callback(e, null);
+        return;
+      }
     }
+    var result = [];
+    f.on('message', function(message, seqno) {
+      var parser = new MailParser();
+      parser.on('end', function(mail) {
+        result.push(mail);
+      });
+      message.on('body', function(stream, info) {
+        stream.on('data', function(chunk) {
+          parser.write(chunk);
+        });
+        stream.on('end', function() {
+          parser.end();
+        });
+      });
+    });
+    f.once('error', function(err) {
+      if (yield_imap(type[0])) {
+        imap.end();
+      }
+      callback(err, null);
+    });
+    f.once('end', function() {
+      Logger.log('handle_search_results', user._id, type, results.length, 'fetched');
+      if (yield_imap(type[0])) {
+        imap.end();
+      }
+      callback(null, result);
+    });
+  } else {
+    if (yield_imap(type[0])) {
+      imap.end();
+    }
+    callback(null, []);
   }
-  var result = [];
-  f.on('message', function(message, seqno) {
-    var parser = new MailParser();
-    parser.on('end', function(mail) {
-      result.push(mail);
-    });
-    message.on('body', function(stream, info) {
-      stream.on('data', function(chunk) {
-        parser.write(chunk);
-      });
-      stream.on('end', function() {
-        parser.end();
-      });
-    });
-  });
-  f.once('error', function(err) {
-    if (yield_imap(type[0])) {
-      imap.end();
-    }
-    callback(err, null);
-  });
-  f.once('end', function() {
-    Logger.log('handle_search_results', user._id, type, results.length, 'fetched');
-    if (yield_imap(type[0])) {
-      imap.end();
-    }
-    callback(null, result);
-  });
 }
 
 function handle_check_mail(user, token, callback) {
@@ -100,7 +112,7 @@ function handle_check_mail(user, token, callback) {
       }
 
       Logger.log('handle_check_mail', user._id, 'opened mailbox', boxname);
-      myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted"']],
+      myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Ingress Portal Submitted" OR "Portal submission confirmation"']],
         function(err, results) {
           Logger.log('handle_check_mail', user._id, 'submitted');
           if (err) {
@@ -156,6 +168,20 @@ function handle_check_mail(user, token, callback) {
             mail.duplicates = result;
           });
         }); // pdupe handler
+      myImap.search(['ALL', ['X-GM-RAW', 'from:ingress-support@google.com "Portal review complete"']],
+        function (err, results) {
+          Logger.log('handle_check_mail', user._id, 'reviewed');
+          if (err) {
+            return callback(err, null);
+          }
+          handle_search_results('v2-reviewed', results, myImap, user, function(err, result) {
+            if (err) {
+              callback(err, null);
+              return;
+            }
+            mail.reviewed = result;
+          });
+        }); // previewed (v2) handler
     }); // open box handler
   }
 

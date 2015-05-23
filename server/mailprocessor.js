@@ -1,4 +1,4 @@
-/* global Meteor, _, Portals, Mongo, Logger, escape */
+/* global Meteor, MailProcessorV2 _, Portals, Mongo, Logger, escape */
 
 var cheerio = Meteor.npmRequire('cheerio');
 /* global MailProcessor:true */
@@ -7,6 +7,20 @@ MailProcessor = {};
 var INSECURE_HTTP = /^http:/;
 
 var MessageIDs = new Mongo.Collection('messageIDs');
+
+MailProcessor.upsertPortal = function (obj, submitted, userId) {
+  if (!Portals.findOne({image: obj.image, submitter: obj.submitter})) {
+    var model = _.pick(obj, 'submitter', 'name', 'image', 'messageId');
+    Logger.log('MailProcessor.process', userId, 'new submission', model.name);
+    model.history = submitted ? [{
+      timestamp: obj.date,
+      what: 'submitted',
+      messageId: obj.messageId
+    }] : [];
+    var id = Portals.insert(model);
+    Logger.log('MailProcessor.process', userId, 'new submission', model.name, id);
+  }
+};
 
 MailProcessor.process = function(userId, mail) {
   Logger.log('MailProcessor.process', userId);
@@ -20,20 +34,6 @@ MailProcessor.process = function(userId, mail) {
     })
   });
 
-  function upsertPortal(obj, submitted) {
-    if (!Portals.findOne({image: obj.image, submitter: obj.submitter})) {
-      var model = _.pick(obj, 'submitter', 'name', 'image', 'messageId');
-      Logger.log('MailProcessor.process', userId, 'new submission', model.name);
-      model.history = submitted ? [{
-        timestamp: obj.date,
-        what: 'submitted',
-        messageId: obj.messageId
-      }] : [];
-      var id = Portals.insert(model);
-      Logger.log('MailProcessor.process', userId, 'new submission', model.name, id);
-    }
-  }
-
   /*
    * Mail comes in 4 types: submitted, rejected, dupe, and live.
    * First, we process the submitted portals to get the general
@@ -42,11 +42,12 @@ MailProcessor.process = function(userId, mail) {
    * Portals are matched by title.
    */
   mail.submitted.map(function(msg) {
-    var imageUrl = cheerio.load(msg.html)('img').attr('src');
+    var $msg = cheerio.load(msg.html);
+    var imageUrl = $msg('img').attr('src');
     if (INSECURE_HTTP.test(imageUrl)) {
       imageUrl = imageUrl.replace(INSECURE_HTTP, 'https:');
     }
-    return {
+    return msg.html.match(/<i>-NianticOps<\/i>/) ? MailProcessorV2.submitted(msg, imageUrl, userId) : {
       'submitter': userId,
       'name': msg.subject.slice(26), // skips "Ingress Portal Submitted: "
       'image': imageUrl || Meteor.absoluteUrl() + 'image-missing/' + escape(msg.subject.slice(26)),
@@ -54,7 +55,7 @@ MailProcessor.process = function(userId, mail) {
       'messageId': msg.messageId
     };
   }).forEach(function(obj) {
-    upsertPortal(obj, true);
+    MailProcessor.upsertPortal(obj, true, userId);
     Logger.log('MailProcessor.process', userId, 'submitted', obj.name, obj.messageId);
   });
 
@@ -77,7 +78,7 @@ MailProcessor.process = function(userId, mail) {
       'messageId': msg.messageId
     };
   }).forEach(function(obj) {
-    upsertPortal(obj);
+    MailProcessor.upsertPortal(obj, false, userId);
     Logger.log('MailProcessor.process', userId, 'live', obj.name, obj.messageId);
 
     var updoc = {
@@ -112,7 +113,7 @@ MailProcessor.process = function(userId, mail) {
       'messageId': msg.messageId
     };
   }).forEach(function(obj) {
-    upsertPortal(obj);
+    MailProcessor.upsertPortal(obj, false, userId);
     Logger.log('MailProcessor.process', userId, 'submitted', obj.name, obj.messageId);
 
     Portals.update({
@@ -142,7 +143,7 @@ MailProcessor.process = function(userId, mail) {
       'messageId': msg.messageId
     };
   }).forEach(function(obj) {
-    upsertPortal(obj);
+    MailProcessor.upsertPortal(obj, false, userId);
     Logger.log('MailProcessor.process', userId, 'submitted', obj.name, obj.messageId);
 
     Portals.update({
@@ -157,5 +158,18 @@ MailProcessor.process = function(userId, mail) {
         }
       }
     });
+  });
+
+  // Version 2 Niantic mail reviews:
+  mail.reviewed.map(function (msg) {
+    if (msg.subject.match(/Portal is now available on your Scanner/g)) {
+      MailProcessorV2.live(msg, userId);
+    } else if (msg.subject.match(/we have decided not to accept this candidate/g)) {
+      MailProcessorV2.rejected(msg, userId);
+    } else if (msg.subject.match(/Your candidate is a duplicate of either an existing Portal/g)) {
+      MailProcessorV2.duplicate(msg, userId);
+    } else {
+      MailProcessorV2.unknownReview(msg, userId);
+    }
   });
 };
