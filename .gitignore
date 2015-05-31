@@ -41,3 +41,4 @@ bin/
 settings-deploy.json
 /build
 .bower_components/
+install-ipsum.sh
