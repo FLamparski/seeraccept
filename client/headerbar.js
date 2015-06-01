@@ -27,12 +27,12 @@ Template.header.events({
       console.error('No user ID');
       return;
     } else {
-      Meteor.call('check_mail', function(err) {
+      Meteor.call('checkMail', function(err, summary) {
         if (err) {
           console.error('Manual refresh failed', err);
           return;
         }
-        console.log('Manual refresh complete');
+        console.log('Manual refresh complete', summary);
       });
     }
   },
