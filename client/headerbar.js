@@ -27,13 +27,7 @@ Template.header.events({
       console.error('No user ID');
       return;
     } else {
-      Meteor.call('checkMail', function(err, summary) {
-        if (err) {
-          console.error('Manual refresh failed', err);
-          return;
-        }
-        console.log('Manual refresh complete', summary);
-      });
+      Meteor.call('checkMail', window.onMailCheckDone);
     }
   },
   'click .portals-filter': function(e, tmpl) {

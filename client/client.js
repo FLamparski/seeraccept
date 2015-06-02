@@ -1,9 +1,23 @@
 /* eslint-env browser,jquery */
-/* global Router, Tracker, Session, Meteor, Alerts, Portals, _ */
-
-var currentUser = null;
+/* global Accounts, Router, Tracker, Session, Meteor, Alerts, Portals, _ */
 
 Session.set('page.title', 'Ipsum');
+
+window.onMailCheckDone = function(err, summary) {
+  if (err) {
+    console.error(err);
+    return $.growl.error({
+      title: 'Could not check mail :(',
+      message: err,
+      location: 'br'
+    });
+  }
+  $.growl.notice({
+    title: 'Mail fetched!',
+    message: _.template('Messages: Submitted <%= submitted %>, Live <%= live %>, Rejected <%= rejected %>, Duplicates <%= duplicates %>, Reviewed <%= reviewed %>')(summary),
+    location: 'br'
+  });
+};
 
 Tracker.autorun(function() {
   document.title = Session.get('page.title');
@@ -23,22 +37,18 @@ Tracker.autorun(function() {
   });
 });
 
-function onlogincb() {
+Accounts.onLogin(function() {
   _.chain(Alerts.find().fetch()).pluck('_id').each(function(a) {
     Alerts.remove({
       _id: a._id
     });
   });
-}
+  Meteor.call('checkMail', window.onMailCheckDone);
+});
 
 Tracker.autorun(function() {
   if (!Meteor.userId()) {
     $('body').removeClass('app').addClass('landing');
-  } else {
-    if (currentUser !== Meteor.userId()) {
-      onlogincb();
-      currentUser = Meteor.userId();
-    }
   }
 });
 
