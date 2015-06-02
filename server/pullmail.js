@@ -60,10 +60,17 @@ function checkAllPortalMail(user, imap, onMailFetched) {
     throw e;
   }
 
-  fetchStream.on('message', Meteor.bindEnvironment(function(message) {
+  fetchStream.on('message', Meteor.bindEnvironment(function(message, seqNo) {
     var parser = new MailParser();
     parser.on('end', Meteor.bindEnvironment(function(message) {
+      Logger.log('on parser.end', user._id, message.messageId, message.subject);
       mail.push(message);
+      searchResults.splice(searchResults.indexOf(seqNo), 1);
+      if (searchResults.length === 0) {
+        imap.end();
+        Logger.log('checkAllPortalMail', user._id, mail.length);
+        return onMailFetched(null, mail);
+      }
     }));
     message.on('body', Meteor.bindEnvironment(function(stream) {
       stream.pipe(parser);
@@ -73,8 +80,7 @@ function checkAllPortalMail(user, imap, onMailFetched) {
     onMailFetched(err);
   }));
   fetchStream.once('end', Meteor.bindEnvironment(function() {
-    Logger.log('checkAllPortalMail', user._id, mail.length);
-    onMailFetched(null, mail);
+    Logger.log('checkAllPortalMail', user._id, 'fetch stream closed');
   }));
 }
 
@@ -122,6 +128,13 @@ Meteor.methods({
       var mail = Meteor.wrapAsync(checkUserMail)(user);
     } catch (ex) {
       Logger.error('Error in a wrapped function:', ex.stack || ex.message || inspect(ex));
+      // Drop the lock so that they don't get the spinny icon of death
+      Meteor.users.update(this.userId, {$unset: {'profile.mailCheck': ''}});
+      if (ex.message === 'Error: Invalid credentials (Failure)') {
+        throw new Meteor.Error(401, 'Sorry, but your Google OAuth token has expired. Please log out and log back in.');
+      } else {
+        throw new Meteor.Error(500, 'Bad things happened on the server: ' + ex.message);
+      }
     }
     var sorted = {
       submitted: [],
