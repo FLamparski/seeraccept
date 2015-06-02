@@ -1,25 +1,8 @@
-/* global Meteor, Alerts, _, Logger, MailProcessor, check */
+/* global Meteor, _, Logger, MailProcessor, check */
 
 var Imap = Meteor.npmRequire('imap'),
   MailParser = Meteor.npmRequire('mailparser').MailParser,
-  Future = Meteor.npmRequire('fibers/future'),
   inspect = Meteor.npmRequire('util').inspect;
-
-function bindAndWrapAsync(target, context) {
-  var fut = new Future();
-  var cb = Meteor.bindEnvironment(function(e, r) {
-    if (e) {
-      return fut.throw(e);
-    }
-    return fut.return(r);
-  });
-  return function() {
-    var args = _.toArray(arguments);
-    args.push(cb);
-    target.apply(context, args);
-    return fut.wait();
-  };
-}
 
 function findAllMail(boxes) {
   var all = null;
@@ -27,8 +10,8 @@ function findAllMail(boxes) {
     var keys = _.keys(boxes);
     _.each(keys, function(key) {
       boxes[key]._name = key;
-      if (boxes[key].children) {
-        boxes[key].children = inner(boxes);
+      if (!all && boxes[key].children) {
+        boxes[key].children = inner(boxes[key].children);
       }
       if (boxes[key].attribs.indexOf('\\All') > -1) {
         all = boxes[key];
@@ -36,17 +19,19 @@ function findAllMail(boxes) {
     });
   }
   inner(boxes);
+  Logger.log('findAllMail finished', all._name);
   return all;
 }
 
 function checkAllPortalMail(user, imap, onMailFetched) {
   Logger.log('checkAllPortalMail', user._id);
-  var boxes = bindAndWrapAsync(imap.getBoxes, imap)();
+  var boxes = Meteor.wrapAsync(imap.getBoxes, imap)();
   var allMailBox = findAllMail(boxes);
   var allMailBoxName = [allMailBox.parent._name, allMailBox._name]
     .join(allMailBox.parent.delimiter);
 
-  bindAndWrapAsync(imap.openBox, imap)(allMailBoxName); // Do I even need this?
+  Meteor.wrapAsync(imap.openBox, imap)(allMailBoxName); // Do I even need this?
+  Logger.log('checkAllPortalMail', user._id, 'box open');
 
   var mail = [];
   var sender = 'from:ingress-support@google.com';
@@ -58,35 +43,39 @@ function checkAllPortalMail(user, imap, onMailFetched) {
     '"Portal submission confirmation"',
     '"Portal review complete"'
   ];
-  var qs = [sender, [queries].join(' OR ')].join(' ');
-  var searchResults = bindAndWrapAsync(imap.search, imap)(['ALL', ['X-GM-RAW', qs]]);
+  var qs = [sender, queries.join(' OR ')].join(' ');
+  Logger.log('checkAllPortalMail', user._id, 'query', qs);
+  var searchResults = Meteor.wrapAsync(imap.search, imap)(['ALL', ['X-GM-RAW', qs]]);
+  Logger.log('checkAllPortalMail', user._id, 'search results done');
 
   var fetchStream;
   try {
     fetchStream = imap.fetch(searchResults, {bodies: ''});
+    Logger.log('checkAllPortalMail', user._id, 'fetchStream open');
   } catch (e) {
     if (e.message === 'Nothing to fetch') {
-      return;
+      Logger.log('checkAllPortalMail', user._id, e.message);
+      return onMailFetched(null, []);
     }
     throw e;
   }
 
-  fetchStream.on('message', function(message) {
+  fetchStream.on('message', Meteor.bindEnvironment(function(message) {
     var parser = new MailParser();
-    parser.on('end', function(message) {
+    parser.on('end', Meteor.bindEnvironment(function(message) {
       mail.push(message);
-    });
-    message.on('body', function(stream) {
+    }));
+    message.on('body', Meteor.bindEnvironment(function(stream) {
       stream.pipe(parser);
-    });
-  });
-  fetchStream.once('error', function(err) {
+    }));
+  }));
+  fetchStream.once('error', Meteor.bindEnvironment(function(err) {
     onMailFetched(err);
-  });
-  fetchStream.once('end', function() {
+  }));
+  fetchStream.once('end', Meteor.bindEnvironment(function() {
     Logger.log('checkAllPortalMail', user._id, mail.length);
     onMailFetched(null, mail);
-  });
+  }));
 }
 
 function checkUserMail(user, doneCheckUserMail) {
@@ -104,32 +93,41 @@ function checkUserMail(user, doneCheckUserMail) {
 
   var mail = [];
 
-  imap.once('ready', checkAllPortalMail.bind(null, user, imap, doneCheckUserMail));
-  imap.once('end', function() {
+  imap.once('ready', Meteor.bindEnvironment(checkAllPortalMail.bind(null, user, imap, doneCheckUserMail)));
+  imap.once('end', Meteor.bindEnvironment(function() {
     Logger.log('checkUserMail', user._id, 'complete', mail.length);
-  });
-  imap.once('error', function(err) {
+  }));
+  imap.once('error', Meteor.bindEnvironment(function(err) {
     Logger.error('checkUserMail', user._id, 'error', inspect(err, {depth: 0}));
     doneCheckUserMail(err);
-  });
+  }));
   imap.connect();
 }
 
 Meteor.methods({
   checkMail: function() {
     check(this.userId, String);
+    Logger.log('method /checkMail', this.userId);
 
     var user = Meteor.users.findOne(this.userId);
     check(user, Object);
+    if (user.profile.mailCheck) {
+      Logger.log('method /checkMail', this.userId, 'already in progress');
+      return null;
+    }
     this.unblock();
 
     Meteor.users.update(this.userId, {$set: {'profile.mailCheck': new Date()}});
-    var mail = bindAndWrapAsync(checkUserMail)(user);
+    try {
+      var mail = Meteor.wrapAsync(checkUserMail)(user);
+    } catch (ex) {
+      Logger.error('Error in a wrapped function:', ex.stack || ex.message || inspect(ex));
+    }
     var sorted = {
       submitted: [],
       live: [],
       rejected: [],
-      duplicate: [],
+      duplicates: [],
       reviewed: []
     };
     _.each(mail, function(message) {
@@ -141,7 +139,7 @@ Meteor.methods({
       } else if (message.subject.indexOf('Ingress Portal Rejected') === 0) {
         sorted.rejected.push(message);
       } else if (message.subject.indexOf('Ingress Portal Duplicate') === 0) {
-        sorted.duplicate.push(message);
+        sorted.duplicates.push(message);
       } else if (message.subject.indexOf('Portal review complete') === 0) {
         sorted.reviewed.push(message);
       }
@@ -150,8 +148,10 @@ Meteor.methods({
     Meteor.setTimeout(function() {
       MailProcessor.process(user._id, sorted);
     }, 0);
-    return _.chain(sorted).map(function(list, key) {
+    var summary = _.chain(sorted).map(function(list, key) {
       return [key, list.length];
-    }).object();
+    }).object().value();
+    Logger.log('method /checkMail', user._id, inspect(summary));
+    return summary;
   }
 });
