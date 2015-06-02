@@ -37,9 +37,6 @@ Accounts.onCreateUser(function(options, user) {
 
 Accounts.onLogin(function(loginInfo) {
   Logger.log('login', loginInfo.user.services.google.email, loginInfo.type);
-  Meteor.setTimeout(function() {
-    Meteor.call('checkMail');
-  }, 0); // unblock the onLogin callback so that the user can get in
 });
 
 function logoutExpired() {
