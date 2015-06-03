@@ -127,18 +127,26 @@ Template.ttrScatterPlot.onRendered(function() {
     var cursor = Portals.find({submitter: Meteor.userId(), 'history.what': 'submitted'});
     this._chartContext = this.find('#ttrScatterPlot').getContext('2d');
     this._scatterPlot = new Chart(this._chartContext, { animation: true, responsive: true, maintainAspectRatio: true })
-      .Scatter(scatterData(_.sortBy(cursor.fetch(), function(portal) { return _.findWhere(portal.history, {what: 'submitted'}).timestamp; })), { // eslint-disable-line new-cap
+      .Scatter(scatterData(_.sortBy(cursor.fetch(), function(portal) { // eslint-disable-line new-cap
+        return _.findWhere(portal.history, {what: 'submitted'}).timestamp;
+      })), {
         scaleType: 'date',
         useUtc: true,
         scaleDateFormat: 'yyyy-mm-dd',
         scaleTimeFormat: 'HH:MM',
         scaleDateTimeFormat: 'yyyy-mm-dd HH:MM',
-        bezierCurve: false
+        bezierCurve: false,
+        datasetStrokeColor: '#263238'
       });
   }.bind(this), 0);
 });
 
 function histogramData(portals) {
+  // var histogramBase = _.chain(_.range(Math.max.apply(Math, portalLib.portalResponseTimes(portals))))
+  //     .rest()
+  //     .map(function(n) {
+  //       return [n, 0];
+  //     }).object().value();
   var data = _.chain(portals)
     .map(portalLib.getWaitTime)
     .filter(function(waitTime) {
@@ -147,17 +155,14 @@ function histogramData(portals) {
     .pluck('days')
     .sortBy()
     .reduce(function(hist, n) {
-      if (!hist[n]) {
-        hist[n] = 1;
-      } else {
-        hist[n] += 1;
-      }
+      hist[n] = (hist[n] || 0) + 1;
       return hist;
     }, {})
     .value();
   return {
     labels: _.keys(data),
     datasets: [{
+      fillColor: 'rgba(38, 50, 56, 1.0)',
       label: 'Number of days until review',
       data: _.values(data)
     }]
@@ -170,7 +175,7 @@ Template.ttrHistogram.onRendered(function() {
     var cursor = Portals.find({submitter: Meteor.userId(), 'history.what': 'submitted'});
     this._chartContext = this.find('#ttrHistogram').getContext('2d');
     this._histogram = new Chart(this._chartContext, { animation: true, responsive: true, maintainAspectRatio: true })
-      .Bar(histogramData(cursor.fetch()), {  // eslint-disable-line new-cap
+      .Line(histogramData(cursor.fetch()), {  // eslint-disable-line new-cap
         barValueSpacing: 1,
         scaleShowVerticalLines: false
       });
