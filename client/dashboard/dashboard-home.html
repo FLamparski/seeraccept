@@ -54,7 +54,7 @@
         {{>badgeProgress}}
         {{/if}}
         <h2 class="ui-label">Time taken</h2>
-        <div class="row card" style="margin-bottom: 1.5em">
+        <div class="row card">
           <div class="col-sm-4 text-center">
             <p class="lead">Shortest response</p>
             <p class="large green">
@@ -76,6 +76,11 @@
             <p class="red">({{humanize longestResponse}})</p>
           </div>
         </div>
+        <h2 class="ui-label">Response statistics</h2>
+        <div class="row card" style="margin-bottom: 1.5em">
+          {{> ttrScatterPlot}}
+          {{> ttrHistogram}}
+        </div>
       </div>
       {{else}}
       {{> noPortals}}
@@ -87,6 +92,20 @@
 <template name="portalPieChart">
   <canvas id="portalPieChart" height="300" class="center-block">
   </canvas>
+</template>
+
+<template name="ttrScatterPlot">
+  <div class="col-md-12">
+    <strong>Date submitted vs days in queue</strong>
+    <canvas id="ttrScatterPlot" height="7" width="16" class="center-block"></canvas>
+  </div>
+</template>
+
+<template name="ttrHistogram">
+  <div class="col-md-12">
+    <strong>Histogram of wait times</strong>
+    <canvas id="ttrHistogram" height="7" width="16" class="center-block"></canvas>
+  </div>
 </template>
 
 <template name="badgeProgress">

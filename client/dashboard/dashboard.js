@@ -47,9 +47,9 @@ Template.dashboard.helpers({
   }
 });
 
-Template.dashboard.rendered = function() {
+Template.dashboard.onRendered(function() {
   Session.set('page.title', 'Dashboard');
-};
+});
 
 function piechartData(portals) {
   return [
@@ -89,7 +89,7 @@ var redrawChart = _.debounce(function () {
   chart.update();
 }, 200);
 
-Template.portalPieChart.rendered = function() {
+Template.portalPieChart.onRendered(function() {
   console.log('portalPieChart rendered');
   setTimeout(function() {
     var cursor = Portals.find({submitter: Meteor.userId()});
@@ -102,11 +102,80 @@ Template.portalPieChart.rendered = function() {
       removed: redrawChart
     });
   }.bind(this), 0);
-};
+});
 
-Template.portalPieChart.destroyed = function() {
+Template.portalPieChart.onDestroyed(function() {
   this._portalObserver.stop();
-};
+});
+
+function scatterData(portals) {
+  return [{
+    label: 'Portals',
+    data: _.chain(portals)
+      .map(portalLib.getWaitTime)
+      .filter(function(waitTime) {
+        return waitTime.conclusive;
+      }).map(function(waitTime, i) {
+        return {x: _.findWhere(portals[i].history, {what: 'submitted'}).timestamp, y: waitTime.days};
+      }).value()
+  }];
+}
+
+Template.ttrScatterPlot.onRendered(function() {
+  console.log('ttrScatterPlot rendered');
+  setTimeout(function() {
+    var cursor = Portals.find({submitter: Meteor.userId(), 'history.what': 'submitted'});
+    this._chartContext = this.find('#ttrScatterPlot').getContext('2d');
+    this._scatterPlot = new Chart(this._chartContext, { animation: true, responsive: true, maintainAspectRatio: true })
+      .Scatter(scatterData(_.sortBy(cursor.fetch(), function(portal) { return _.findWhere(portal.history, {what: 'submitted'}).timestamp; })), { // eslint-disable-line new-cap
+        scaleType: 'date',
+        useUtc: true,
+        scaleDateFormat: 'yyyy-mm-dd',
+        scaleTimeFormat: 'HH:MM',
+        scaleDateTimeFormat: 'yyyy-mm-dd HH:MM',
+        bezierCurve: false
+      });
+  }.bind(this), 0);
+});
+
+function histogramData(portals) {
+  var data = _.chain(portals)
+    .map(portalLib.getWaitTime)
+    .filter(function(waitTime) {
+      return waitTime.conclusive;
+    })
+    .pluck('days')
+    .sortBy()
+    .reduce(function(hist, n) {
+      if (!hist[n]) {
+        hist[n] = 1;
+      } else {
+        hist[n] += 1;
+      }
+      return hist;
+    }, {})
+    .value();
+  return {
+    labels: _.keys(data),
+    datasets: [{
+      label: 'Number of days until review',
+      data: _.values(data)
+    }]
+  };
+}
+
+Template.ttrHistogram.onRendered(function() {
+  console.log('ttrHistogram rendered');
+  setTimeout(function() {
+    var cursor = Portals.find({submitter: Meteor.userId(), 'history.what': 'submitted'});
+    this._chartContext = this.find('#ttrHistogram').getContext('2d');
+    this._histogram = new Chart(this._chartContext, { animation: true, responsive: true, maintainAspectRatio: true })
+      .Bar(histogramData(cursor.fetch()), {  // eslint-disable-line new-cap
+        barValueSpacing: 1,
+        scaleShowVerticalLines: false
+      });
+  }.bind(this), 0);
+});
 
 Template.badgeProgress.helpers({
   nextSeerBadge: function() {
