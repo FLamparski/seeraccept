@@ -2,7 +2,8 @@
 
 var cheerio = Meteor.npmRequire('cheerio');
 /* global MailProcessorV2:true */
-MailProcessorV2 = {};
+
+var UnknownReviews = new Mongo.Collection('unknown_reviews');
 
 var INSECURE_HTTP = /^http:/;
 
@@ -78,5 +79,11 @@ MailProcessorV2 = {
     Logger.log('MailProcessorV2.process', userId, 'rejected', obj.name, obj.messageId);
 
     addEventToPortalHistory(obj, 'rejected');
+  },
+  unknownReview: function(msg, userId) {
+    Logger.error('MailProcessorV2.process', userId, 'UNKNOWN', msg.messageId);
+    if (!UnknownReviews.findOne({messageId: msg.messageId})) {
+      UnknownReviews.insert({timestamp: new Date(), messageId: msg.messageId, message: msg, user: userId});
+    }
   }
 };
