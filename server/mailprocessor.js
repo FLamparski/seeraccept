@@ -162,11 +162,12 @@ MailProcessor.process = function(userId, mail) {
 
   // Version 2 Niantic mail reviews:
   mail.reviewed.map(function (msg) {
-    if (msg.html.match(/Portal is now available on your Scanner/g)) {
+    if (msg.html.match(/Good work, Agent: we've accepted your submission, and this Portal is now available on your Scanner and on the Intel Map\./g)) {
       MailProcessorV2.live(msg, userId);
     } else if (msg.html.match(/we have decided not to accept this candidate/g)) {
       MailProcessorV2.rejected(msg, userId);
-    } else if (msg.html.match(/Your candidate is a duplicate of either an existing Portal/g)) {
+    } else if (msg.html.match(/Your candidate is a duplicate of either an existing Portal/g)
+      || msg.html.match(/this candidate is too close to an existing Portal/g)) {
       MailProcessorV2.duplicate(msg, userId);
     } else {
       MailProcessorV2.unknownReview(msg, userId);
