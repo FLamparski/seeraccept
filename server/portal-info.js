@@ -8,7 +8,8 @@ var CACHE_LIST = 'http://ingress.dj-djl.com/iic-/rest.aspx/PortalCache/List';
 
 Meteor.methods({
   '/levels/get': function(id) {
-    if (!this.userId) {
+    this.unblock();
+    if (this.connection && !this.userId) {
       throw new Meteor.Error(403, 'You need to be logged in to do that');
     }
     check(id, String);
@@ -53,6 +54,25 @@ Meteor.methods({
     var data = response.data || JSON.parse(response.content);
     return _.find(data, function(cached) {
       return cached.N === portal.name;
+    });
+  }
+});
+
+Portals.find({'history.what': 'live', intel: {$exists: true}, ingressId: {$exists: false}}).observe({
+  added: function(newDoc, oldDoc) {
+    if (!_.has(newDoc, 'intel')) {
+      return;
+    }
+    console.log(new Date().toISOString(), 'portal.observe', 'Looking up Ingress ID for', newDoc._id);
+    Meteor.call('/levels/get', newDoc._id, function(err, info) {
+      if (err) {
+        console.error(new Date().toISOString(), 'portals.observe', 'Error looking up Ingress ID for', newDoc._id, err);
+        return;
+      }
+      if (info && newDoc.name === info.N) {
+        console.log(new Date().toISOString(), 'portals.observe', 'Found Ingress ID for', newDoc._id, info.i);
+        Portals.update(newDoc._id, {$set: {ingressId: info.i}});
+      }
     });
   }
 });
